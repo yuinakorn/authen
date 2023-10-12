@@ -29,7 +29,7 @@ async def read_policy():
             }
 
 
-@app.get("/termofuser/")
+@app.get("/termsofuser/")
 async def read_term_of_user():
     return {"title": "ข้อกำหนดผู้ใช้งาน (Term of User)",
             "content": "การยืนยันตัวตนเพื่อเข้าใช้งานระบบของเว็บไซต์ของสำนักงานสาธารณสุขจังหวัดเชียงใหม่ ภายใต้ชื่อโดนเมน <br>"
