@@ -33,12 +33,13 @@ async def callback(code: str = None, state: str = None):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        print("this payload = " + payload)
-        print("this headers = " + str(headers))
 
+        # print("this payload = " + payload)
+        # print("this headers = " + str(headers))
+        #
         print(response.text)
 
-        return response.json()
+        return response.text
     else:
         raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
 
