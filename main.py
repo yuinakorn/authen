@@ -1,6 +1,9 @@
-from urllib import request
-
+from urllib.parse import quote
+from dotenv import dotenv_values
 from fastapi import FastAPI, HTTPException
+import requests
+
+config_env = dotenv_values(".env")
 
 app = FastAPI()
 
@@ -14,7 +17,25 @@ async def read_root():
 async def callback(code: str = None, state: str = None):
     try:
         if code.strip() and state.strip():
-            return {"Your code is ": f"{code}", "Your state is ": f"{state}"}
+
+            url = config_env["URL_TOKEN"]
+            grant_type = config_env["GRANT_TYPE"]
+            redirect_uri = config_env["REDIRECT_URI"]
+            auth_basic = config_env["AUTH_BASIC"]
+
+            encoded_url = quote(redirect_uri)
+
+            payload = f'grant_type={grant_type}&code={code}&redirect_uri={encoded_url}'
+            headers = {
+                'Content-Type': config_env["CONTENT_TYPE"],
+                'Authorization': f'Basic {auth_basic}',
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+
+            print(response.text)
+
+            return {"detail": response.json}
         else:
             raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
     except Exception as e:
