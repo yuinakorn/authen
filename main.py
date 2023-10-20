@@ -31,7 +31,7 @@ async def callback(code: str = None, state: str = None):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        print(payload)
+        print("this payload = "+payload)
         print(response.text)
 
         return response.json()
