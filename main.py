@@ -45,13 +45,11 @@ async def callback(code: str = None, state: str = None):
 
             print(response2.text)
 
-            return {"active": response2.json()["active"],"detail": response.json()}
-
-            # if response2.json()["active"] is True:
-            #     return response.json()
-            # else:
-            #     raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
-            #
+            if response2.json()["active"] is True:
+                return {"active": response2.json()["active"], "detail": response.json()}
+                # return response.json()
+            else:
+                raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
 
             # return response.json()
 
