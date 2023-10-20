@@ -16,36 +16,31 @@ async def read_root():
 
 @app.get("/callback/")
 async def callback(code: str = None, state: str = None):
-    try:
-        if code.strip() and state.strip():
+    if code.strip() and state.strip():
 
-            url = config_env["URL_TOKEN"]
-            grant_type = config_env["GRANT_TYPE"]
-            redirect_uri = config_env["REDIRECT_URI"]
-            auth_basic = config_env["AUTH_BASIC"]
+        url = config_env["URL_TOKEN"]
+        grant_type = config_env["GRANT_TYPE"]
+        redirect_uri = config_env["REDIRECT_URI"]
+        auth_basic = config_env["AUTH_BASIC"]
 
-            encoded_url = urllib.parse.quote(redirect_uri, safe="")
+        encoded_url = urllib.parse.quote(redirect_uri, safe="")
 
-            payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
+        payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
 
-            payloadx = 'grant_type=authorization_code&code=MzllOTA2NDAtMjI2Ni00YTE3LThkZGItNzhlNjY4YjNlYmQ1IzU1MDg2ZDU4LWI0NDItNDcxNC1hMjFkLWJjNThlNzAwZDY2OA&redirect_uri=https%3A%2F%2Fauthen.chiangmaihealth.go.th%2Fcallback'
-            headers = {
-                'Content-Type': config_env["CONTENT_TYPE"],
-                'Authorization': f'Basic {auth_basic}',
-            }
+        headers = {
+            'Content-Type': config_env["CONTENT_TYPE"],
+            'Authorization': f'Basic {auth_basic}',
+        }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
-            print("this payload = " + payload)
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print("this payload = " + payload)
+        print("this headers = " + str(headers))
 
-            print(response.text)
+        print(response.text)
 
-            return response.json()
-        else:
-            raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
-
-    except Exception as e:
-        print(e)
-        return e
+        return response.json()
+    else:
+        raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
 
 
 @app.get("/policy/")
