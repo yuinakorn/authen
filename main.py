@@ -25,17 +25,17 @@ async def callback(code: str = None, state: str = None):
 
             encoded_url = quote(redirect_uri)
 
-            payload = f'grant_type={grant_type}&code={code}&redirect_uri={encoded_url}'
+            payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
             headers = {
                 'Content-Type': config_env["CONTENT_TYPE"],
                 'Authorization': f'Basic {auth_basic}',
             }
 
             response = requests.request("POST", url, headers=headers, data=payload)
-
+            print(payload)
             print(response.text)
 
-            return {"detail": response.text}
+            return {response.json()}
         else:
             raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
     except Exception as e:
