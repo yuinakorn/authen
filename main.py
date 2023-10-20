@@ -15,7 +15,7 @@ async def read_root():
 
 
 @app.get("/callback/")
-async def callback(code: str = None, state: str = None):
+def callback(code: str = None, state: str = None):
     if code.strip() and state.strip():
 
         url = config_env["URL_TOKEN"]
@@ -39,7 +39,7 @@ async def callback(code: str = None, state: str = None):
         #
         print(response.text)
 
-        return response.text
+        return response.json()
     else:
         raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
 
