@@ -35,7 +35,7 @@ async def callback(code: str = None, state: str = None):
             print(payload)
             print(response.text)
 
-            return {response.json()}
+            return response.json()
         else:
             raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
     except Exception as e:
