@@ -1,3 +1,4 @@
+from urllib import request
 from fastapi import FastAPI
 
 app = FastAPI()
@@ -10,12 +11,8 @@ async def read_root():
 
 @app.get("/callback/")
 async def callback():
-    return {"message": "use for POST method"}
-
-
-@app.post("/callback/")
-async def callback():
-    return {"message": "OK, got it"}
+    code = request.args.get('code')
+    return {"Your code is ": f"{code}"}
 
 
 @app.get("/policy/")
