@@ -1,5 +1,6 @@
 from urllib import request
-from fastapi import FastAPI
+
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -10,9 +11,15 @@ async def read_root():
 
 
 @app.get("/callback/")
-async def callback():
-    code = request.args.get('code')
-    return {"Your code is ": f"{code}"}
+async def callback(code: str = None, state: str = None):
+    try:
+        if code.strip() and state.strip():
+            return {"Your code is ": f"{code}", "Your state is ": f"{state}"}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/policy/")
