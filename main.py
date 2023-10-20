@@ -27,6 +27,8 @@ async def callback(code: str = None, state: str = None):
             encoded_url = urllib.parse.quote(redirect_uri, safe="")
 
             payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
+
+            payloadx = 'grant_type=authorization_code&code=MzllOTA2NDAtMjI2Ni00YTE3LThkZGItNzhlNjY4YjNlYmQ1IzU1MDg2ZDU4LWI0NDItNDcxNC1hMjFkLWJjNThlNzAwZDY2OA&redirect_uri=https%3A%2F%2Fauthen.chiangmaihealth.go.th%2Fcallback'
             headers = {
                 'Content-Type': config_env["CONTENT_TYPE"],
                 'Authorization': f'Basic {auth_basic}',
