@@ -19,7 +19,6 @@ async def callback(code: str = None, state: str = None):
     try:
         if code.strip() and state.strip():
 
-            url = config_env["URL_TOKEN"]
             grant_type = config_env["GRANT_TYPE"]
             redirect_uri = config_env["REDIRECT_URI"]
             auth_basic = config_env["AUTH_BASIC"]
@@ -33,14 +32,26 @@ async def callback(code: str = None, state: str = None):
                 'Authorization': f'Basic {auth_basic}',
             }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
+            response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
 
-            # print("this payload = " + payload)
-            # print("this headers = " + str(headers))
-            #
             print(response.text)
 
-            return response.json()
+            # API step 3 Check Active CID
+            access_token = response.json()["access_token"]
+
+            payload2 = f"token=Bearer {access_token}"
+
+            response2 = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
+
+            if response2.json()["active"] is True:
+                return response.json()
+            else:
+                raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
+
+
+
+            # return response.json()
+
         else:
             raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
     except Exception as e:
