@@ -44,7 +44,8 @@ async def callback(code: str = None, state: str = None):
             response2 = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
 
             print(response2.text)
-            return response2.json()
+
+            return response.json()
 
             # if response2.json()["active"] is True:
             #     return response.json()
