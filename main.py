@@ -1,4 +1,5 @@
-from urllib.parse import quote
+# from urllib.parse import quote
+import urllib.parse
 from dotenv import dotenv_values
 from fastapi import FastAPI, HTTPException
 import requests
@@ -23,7 +24,7 @@ async def callback(code: str = None, state: str = None):
             redirect_uri = config_env["REDIRECT_URI"]
             auth_basic = config_env["AUTH_BASIC"]
 
-            encoded_url = quote(redirect_uri)
+            encoded_url = urllib.parse.quote(redirect_uri, safe="")
 
             payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
             headers = {
