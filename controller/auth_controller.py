@@ -79,7 +79,7 @@ def get_callback(code, state):
             if response2.json()["active"] is True:
                 # insert state into database
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO service_request (service_id,client_id,account_token, state,created_date) " \
+                    sql = "INSERT INTO service_requested (service_id, client_id,account_token, state,created_date) " \
                           "VALUES (%s, %s, %s, %s, %s)"
                     cursor.execute(sql, (service_id, client_id, access_token, state, created_date))
                 #     if inserted to return
