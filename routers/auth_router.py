@@ -3,7 +3,7 @@ from controller.auth_controller import get_generate_qrcode, get_callback
 from models.auth_model import AuthBase
 
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(tags=["authentication"])
 
 
 @router.get("/")
