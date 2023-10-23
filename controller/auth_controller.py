@@ -77,11 +77,12 @@ def get_callback(code, state):
             print(response2.text)
 
             if response2.json()["active"] is True:
+                scope_return = response2.json()["pid"] + "," + response2.json()["given_name"] + "," + response2.json()["family_name"]
                 # insert state into database
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO service_requested (service_id, client_id, state, created_date) " \
-                          "VALUES (%s, %s, %s, %s)"
-                    cursor.execute(sql, (service_id, client_id, state, created_date))
+                    sql = "INSERT INTO service_requested (service_id, client_id, scope, state, created_date) " \
+                          "VALUES (%s, %s, %s, %s, %s)"
+                    cursor.execute(sql, (service_id, client_id, scope_return, state, created_date))
                 #     if inserted to return
                 if cursor.rowcount == 1:
                     connection.commit()
