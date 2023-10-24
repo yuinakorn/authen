@@ -15,5 +15,6 @@ def check_permis(hcode, cid):
     matching_positions = [item for item in data if
                           item["position"] and isinstance(item["position"], str) and item["position"].startswith(
                               tuple(position_allow))]
+    result = "1" if len(matching_positions) > 0 else "0"
 
-    return {"position_exists": len(matching_positions) > 0}
+    return {"position_exists": result}

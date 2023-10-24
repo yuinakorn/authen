@@ -4,8 +4,8 @@ from dotenv import dotenv_values
 from fastapi import HTTPException
 from starlette.responses import JSONResponse
 from controller.check_permis_controller import check_permis
-from models.database import connection
-
+# from models.database import connection
+import pymysql.cursors
 import datetime
 import pytz
 
@@ -14,6 +14,14 @@ config_env = dotenv_values(".env")
 
 def get_generate_qrcode(request_token, state: str):
     token = request_token.account_token
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM service_api WHERE account_token = %s"
@@ -40,6 +48,14 @@ def get_generate_qrcode(request_token, state: str):
 
 
 def get_callback(code, state):
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
     try:
         if code.strip() and state.strip():
             service_id = state.split("|")[0]
@@ -79,14 +95,10 @@ def get_callback(code, state):
 
             if res_active.json()["active"] is True:
                 # Check permission
-                permission = check_permis(hcode, response.json()["pid"])
-                if permission["position_exists"] is False:
-                    level = "0"
-                    # raise HTTPException(status_code=403, detail="Permission denied.")
-                else:
-                    level = "1"
+                level = check_permis(hcode, response.json()["pid"])
 
-                scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()["family_name"]
+                scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
+                    "family_name"]
                 active = res_active.json()["active"]
 
                 with connection.cursor() as cursor:
