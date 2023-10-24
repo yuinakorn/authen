@@ -8,8 +8,8 @@ def check_permis(hcode, cid):
 
     print(response.text)
     data = response.json()
-    # position_allow = ["พยาบาล", "นายแพทย์"]
-    position_allow = ["นักวิชาการ"]
+    position_allow = ["พยาบาล", "นายแพทย์", "นักวิชาการ"]
+    # position_allow = ["นักวิชาการ"]
 
     # Check if position starts with "พยาบาล" or "นายแพทย์"
     matching_positions = [item for item in data if

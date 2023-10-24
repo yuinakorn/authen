@@ -4,17 +4,11 @@ from dotenv import dotenv_values
 from fastapi import HTTPException
 from starlette.responses import JSONResponse
 from controller.check_permis_controller import check_permis
-# from models.database import connection
 import pymysql.cursors
 import datetime
 import pytz
 import jwt
-from fastapi.security import OAuth2PasswordBearer
-from typing import Optional
-
 from datetime import datetime, timedelta
-
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 config_env = dotenv_values(".env")
 
@@ -67,7 +61,8 @@ def get_callback(code, state):
         if code.strip() and state.strip():
             service_id = state.split("|")[0]
             client_id = state.split("|")[1]
-            hcode = state.split("|")[2]
+            prov_code = state.split("|")[2]
+            hcode = state.split("|")[3]
 
             # Set the time zone to Thailand
             thailand_tz = pytz.timezone('Asia/Bangkok')
@@ -167,21 +162,6 @@ def create_jwt_token(request_viewer, expires_delta: timedelta):
     to_encode = {**payload, "exp": expire}
     encoded_jwt = jwt.encode(to_encode, config_env["SECRET_KEY"], algorithm="HS256")
     return encoded_jwt
-
-    # data: dict, expires_delta: timedelta
-    #
-    # expire = datetime.utcnow() + expires_delta
-    # to_encode = {**data, "exp": expire}
-    # encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
-    #
-    # user_data = {"username": "example_user"}  # Your payload data
-    # access_token_expires = timedelta(minutes=30)  # Token expiration time
-    # access_token = create_jwt_token(user_data, expires_delta=access_token_expires)
-
-    #     encode JWT with expiration
-    # encoded_jwt = jwt.encode(payload, config_env["SECRET_KEY"], algorithm="HS256")
-
-    # return {"token": encoded_jwt}
 
 
 def get_token_viewer(request_viewer):
