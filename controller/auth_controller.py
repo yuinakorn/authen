@@ -97,15 +97,15 @@ def get_callback(code, state):
 
             if res_active.json()["active"] is True:
                 # Check permission
-                level = check_permis(hcode, response.json()["pid"])
+                level = check_permis(prov_code, hcode, response.json()["pid"])
 
                 scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
                     "family_name"]
                 active = res_active.json()["active"]
 
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO service_requested (service_id, client_id, scope, state, level, active, created_date) " \
-                          "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
+                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                     cursor.execute(sql, (service_id, client_id, scope_return, state, level, active, created_date))
                 #     if inserted to return
                 if cursor.rowcount == 1:
