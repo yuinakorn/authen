@@ -240,3 +240,28 @@ def get_province(request_token):
     except Exception as e:
         print(e)
         return e
+
+
+def get_hosname(hoscode):
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT hoscode, hosname FROM chospital WHERE hoscode = %s LIMIT 1"
+            cursor.execute(sql, hoscode)
+            result = cursor.fetchone()
+
+            if result is None:
+                raise HTTPException(status_code=404, detail=f"{hoscode} Not found.")
+            else:
+                return result
+
+    except Exception as e:
+        print(e)
+        return e
