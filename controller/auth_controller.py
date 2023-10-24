@@ -106,7 +106,8 @@ def get_callback(code, state):
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                    cursor.execute(sql, (service_id, client_id, scope_return, state, level, active, created_date))
+                    cursor.execute(sql,
+                                   (service_id, client_id, hcode, scope_return, state, level, active, created_date))
                 #     if inserted to return
                 if cursor.rowcount == 1:
                     connection.commit()
@@ -150,7 +151,6 @@ def get_active_by_state(request_token, state):
 
 
 def create_jwt_token(request_viewer, expires_delta: timedelta):
-
     payload = {
         "hosCode": request_viewer.hosCode,
         "cid": request_viewer.cid,
