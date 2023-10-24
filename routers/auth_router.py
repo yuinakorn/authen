@@ -6,11 +6,6 @@ from models.auth_model import AuthBase, ViewerBase
 router = APIRouter(tags=["authentication"])
 
 
-@router.get("/")
-async def read_root():
-    return {"message": "Hello, World"}
-
-
 @router.post("/gen_qrcode/")
 async def generate_qrcode(request_token: AuthBase, state: str = None):
     return get_generate_qrcode(request_token, state)
@@ -31,17 +26,23 @@ async def read_token_viewer(request_viewer: ViewerBase):
     return get_token_viewer(request_viewer)
 
 
-@router.post("/province/")
+router2 = APIRouter(tags=["lookup table"])
+
+
+@router2.post("/province/")
 async def read_province_list(request_token: AuthBase):
     return get_province(request_token)
 
 
-@router.get("/hoscode/")
+@router2.get("/hoscode/")
 async def read_hosname_by_hoscode(hoscode: str):
     return get_hosname(hoscode)
 
 
-@router.get("/policy/")
+router3 = APIRouter(tags=["policy"])
+
+
+@router3.get("/policy/")
 async def read_policy():
     return {"title": "เงื่อนไขบริการ (Policy)",
             "content": "การยืนยันตัวตนเพื่อเข้าใช้งานระบบของเว็บไซต์ของสำนักงานสาธารณสุขจังหวัดเชียงใหม่ ภายใต้ชื่อโดนเมน <br>"
@@ -52,7 +53,7 @@ async def read_policy():
             }
 
 
-@router.get("/termsofuser/")
+@router3.get("/termsofuser/")
 async def read_term_of_user():
     return {"title": "ข้อกำหนดผู้ใช้งาน (Term of User)",
             "content": "การยืนยันตัวตนเพื่อเข้าใช้งานระบบของเว็บไซต์ของสำนักงานสาธารณสุขจังหวัดเชียงใหม่ ภายใต้ชื่อโดนเมน <br>"
