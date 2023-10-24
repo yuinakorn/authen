@@ -23,27 +23,25 @@ def check_permis(prov_code, hcode, cid):
                 return 0
             else:
                 url_exp = result["url_exp"]
-                print(url_exp)
-                pass
+                url_his_cid = config_env["URL_HIS_CID"]
+                url = f"{url_exp}{url_his_cid}{hcode}?cid={cid}"
+
+                response = requests.request("GET", url, headers={}, data={})
+
+                print(response.text)
+                data = response.json()
+                position_allow = ["พยาบาล", "นายแพทย์", "นักวิชาการ"]
+
+                matching_positions = [item for item in data if
+                                      item["position"] and isinstance(item["position"], str) and item[
+                                          "position"].startswith(
+                                          tuple(position_allow))]
+                result = 1 if len(matching_positions) > 0 else 0
+
+                return result
 
     except Exception as e:
         print(e)
         return 0
     finally:
         connection.close()
-
-    url_his_cid = config_env["URL_HIS_CID"]
-    url = f"{url_exp}{url_his_cid}{hcode}?cid={cid}"
-
-    response = requests.request("GET", url, headers={}, data={})
-
-    print(response.text)
-    data = response.json()
-    position_allow = ["พยาบาล", "นายแพทย์", "นักวิชาการ"]
-
-    matching_positions = [item for item in data if
-                          item["position"] and isinstance(item["position"], str) and item["position"].startswith(
-                              tuple(position_allow))]
-    result = 1 if len(matching_positions) > 0 else 0
-
-    return result
