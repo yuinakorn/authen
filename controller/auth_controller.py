@@ -8,6 +8,11 @@ from controller.check_permis_controller import check_permis
 import pymysql.cursors
 import datetime
 import pytz
+import jwt
+from fastapi.security import OAuth2PasswordBearer
+from typing import Optional
+
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 config_env = dotenv_values(".env")
 
@@ -147,5 +152,54 @@ def get_active_by_state(request_token, state):
         return e
 
 
+def generate_token_viewer(request_viewer):
 
 
+    payload = {
+        "hosCode": request_viewer.hosCode,
+        "cid": request_viewer.cid,
+        "patientCid": request_viewer.patientCid,
+        "patientHosCode": request_viewer.patientHosCode,
+    }
+
+    # data: dict, expires_delta: timedelta
+    #
+    # expire = datetime.utcnow() + expires_delta
+    # to_encode = {**data, "exp": expire}
+    # encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+    #
+    # user_data = {"username": "example_user"}  # Your payload data
+    # access_token_expires = timedelta(minutes=30)  # Token expiration time
+    # access_token = create_jwt_token(user_data, expires_delta=access_token_expires)
+
+    #     encode JWT with expiration
+    encoded_jwt = jwt.encode(payload, config_env["SECRET_KEY"], algorithm="HS256")
+
+
+
+    return {"token": encoded_jwt}
+
+
+def get_token_viewer(request_viewer):
+    token = request_viewer.account_token
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM service_api WHERE account_token = %s"
+            cursor.execute(sql, token)
+            result = cursor.fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Not found.")
+            else:
+                return generate_token_viewer(request_viewer)
+
+    except Exception as e:
+        print(e)
+        return e
