@@ -66,7 +66,7 @@ def get_callback(code, state):
 
             # Set the time zone to Thailand
             thailand_tz = pytz.timezone('Asia/Bangkok')
-            utc_now = datetime.datetime.now(pytz.utc)
+            utc_now = datetime.now(pytz.utc)
             created_date = utc_now.astimezone(thailand_tz)
 
             grant_type = config_env["GRANT_TYPE"]
