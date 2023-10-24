@@ -1,5 +1,6 @@
 import pymysql
 import requests
+import json
 from dotenv import dotenv_values
 
 config_env = dotenv_values(".env")
@@ -30,7 +31,11 @@ def check_permis(prov_code, hcode, cid):
 
                 print(response.text)
                 data = response.json()
-                position_allow = ["พยาบาล", "นายแพทย์", "นักวิชาการ"]
+                # get data from json file
+                with open('position.json', 'r') as file:
+                    # Load the JSON data from the file
+                    position_list = json.load(file)
+                position_allow = position_list
 
                 matching_positions = [item for item in data if
                                       item["position"] and isinstance(item["position"], str) and item[
