@@ -121,3 +121,31 @@ def get_callback(code, state):
     except Exception as e:
         print(e)
         return e
+
+
+def get_active_by_state(request_token, state):
+    token = request_token.account_token
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM service_requested WHERE state = %s"
+            cursor.execute(sql, state)
+            result = cursor.fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Not found.")
+            else:
+                return result
+    except Exception as e:
+        print(e)
+        return e
+
+
+
+
