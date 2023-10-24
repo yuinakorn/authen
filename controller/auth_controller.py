@@ -12,6 +12,8 @@ import jwt
 from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
+from datetime import datetime, timedelta
+
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 config_env = dotenv_values(".env")
@@ -152,8 +154,7 @@ def get_active_by_state(request_token, state):
         return e
 
 
-def generate_token_viewer(request_viewer):
-
+def create_jwt_token(request_viewer, expires_delta: timedelta):
 
     payload = {
         "hosCode": request_viewer.hosCode,
@@ -161,6 +162,11 @@ def generate_token_viewer(request_viewer):
         "patientCid": request_viewer.patientCid,
         "patientHosCode": request_viewer.patientHosCode,
     }
+
+    expire = datetime.utcnow() + expires_delta
+    to_encode = {**payload, "exp": expire}
+    encoded_jwt = jwt.encode(to_encode, config_env["SECRET_KEY"], algorithm="HS256")
+    return encoded_jwt
 
     # data: dict, expires_delta: timedelta
     #
@@ -173,11 +179,9 @@ def generate_token_viewer(request_viewer):
     # access_token = create_jwt_token(user_data, expires_delta=access_token_expires)
 
     #     encode JWT with expiration
-    encoded_jwt = jwt.encode(payload, config_env["SECRET_KEY"], algorithm="HS256")
+    # encoded_jwt = jwt.encode(payload, config_env["SECRET_KEY"], algorithm="HS256")
 
-
-
-    return {"token": encoded_jwt}
+    # return {"token": encoded_jwt}
 
 
 def get_token_viewer(request_viewer):
@@ -198,8 +202,41 @@ def get_token_viewer(request_viewer):
             if result is None:
                 raise HTTPException(status_code=404, detail="Not found.")
             else:
-                return generate_token_viewer(request_viewer)
+                access_token_expires = timedelta(minutes=30)  # Token expiration time
+                access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
+                return {"access_token": access_token}
+                # return create_jwt_token(request_viewer)
 
+    except Exception as e:
+        print(e)
+        return e
+
+
+def get_province(request_token):
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM service_api WHERE account_token = %s"
+            cursor.execute(sql, request_token.account_token)
+            result = cursor.fetchone()
+            if result is None:
+                raise HTTPException(status_code=404, detail="Not found.")
+            else:
+                with connection.cursor() as cursor:
+                    sql = "SELECT * FROM province_list"
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    if result is None:
+                        raise HTTPException(status_code=404, detail="Not found.")
+                    else:
+                        return result
     except Exception as e:
         print(e)
         return e
