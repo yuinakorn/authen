@@ -3,7 +3,7 @@ import requests
 from dotenv import dotenv_values
 from fastapi import HTTPException
 from starlette.responses import JSONResponse
-
+from controller.check_permis_controller import check_permis
 from models.database import connection
 
 import datetime
@@ -42,8 +42,9 @@ def get_generate_qrcode(request_token, state: str):
 def get_callback(code, state):
     try:
         if code.strip() and state.strip():
-            service_id = state.split("-")[0]
-            client_id = state.split("-")[1]
+            service_id = state.split("|")[0]
+            client_id = state.split("|")[1]
+            hcode = state.split("|")[2]
 
             # Set the time zone to Thailand
             thailand_tz = pytz.timezone('Asia/Bangkok')
@@ -72,22 +73,31 @@ def get_callback(code, state):
 
             payload2 = f"token=Bearer {access_token}"
 
-            response2 = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
+            res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
 
-            print(response2.text)
+            print(res_active.text)
 
-            if response2.json()["active"] is True:
+            if res_active.json()["active"] is True:
+                # Check permission
+                permission = check_permis(hcode, response.json()["pid"])
+                if permission["position_exists"] is False:
+                    level = "0"
+                    # raise HTTPException(status_code=403, detail="Permission denied.")
+                else:
+                    level = "1"
+
                 scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()["family_name"]
-                active = response2.json()["active"]
+                active = res_active.json()["active"]
 
                 with connection.cursor() as cursor:
-                    sql = "INSERT INTO service_requested (service_id, client_id, scope, state, active, created_date) " \
-                          "VALUES (%s, %s, %s, %s, %s, %s)"
-                    cursor.execute(sql, (service_id, client_id, scope_return, state, active, created_date))
+                    sql = "INSERT INTO service_requested (service_id, client_id, scope, state, level, active, created_date) " \
+                          "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(sql, (service_id, client_id, scope_return, state, level, active, created_date))
                 #     if inserted to return
                 if cursor.rowcount == 1:
                     connection.commit()
-                    return {"active": response2.json()["active"], "detail": response.json()}
+                    # return {"active": res_active.json()["active"], "detail": response.json()}
+                    return {"active": res_active.json()["active"]}
                 else:
                     raise HTTPException(status_code=400, detail="Insert failed.")
 

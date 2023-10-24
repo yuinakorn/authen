@@ -1,7 +1,7 @@
+import requests
 from fastapi import FastAPI, APIRouter
 from controller.auth_controller import get_generate_qrcode, get_callback
 from models.auth_model import AuthBase
-
 
 router = APIRouter(tags=["authentication"])
 
@@ -19,6 +19,25 @@ async def generate_qrcode(request_token: AuthBase, state: str = None):
 @router.get("/callback/")
 async def callback(code: str = None, state: str = None):
     return get_callback(code, state)
+
+
+@router.get("/check_permis/")
+async def check_permis(hcode, cid):
+    return []
+    # url = f"https://exp.cmhis.org/query/user_authen_cid/{hcode}?cid={cid}"
+    #
+    # response = requests.request("GET", url, headers={}, data={})
+    #
+    # print(response.text)
+    # data = response.json()
+    # position_allow = ["พยาบาล", "นายแพทย์"]
+    #
+    # # Check if position starts with "พยาบาล" or "นายแพทย์"
+    # matching_positions = [item for item in data if
+    #                       item["position"] and isinstance(item["position"], str) and item["position"].startswith(
+    #                           tuple(position_allow))]
+    #
+    # return {"position_exists": len(matching_positions) > 0}
 
 
 @router.get("/policy/")

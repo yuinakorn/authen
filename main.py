@@ -7,6 +7,3 @@ config_env = dotenv_values(".env")
 app = FastAPI()
 
 app.include_router(auth_router.router)
-
-
-
