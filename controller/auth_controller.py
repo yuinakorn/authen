@@ -112,13 +112,16 @@ def get_callback(code, state):
                 if cursor.rowcount == 1:
                     # 1. insert to temporary table
                     connection.commit()
-                    with connection.cursor() as cursor:
+                    with connection.cursor() as cursor2:
                         sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                        cursor.execute(sql,
-                                       (service_id, client_id, hcode, scope_return, state, level, active, created_date))
+                        cursor2.execute(sql,
+                                        (
+                                            service_id, client_id, hcode, scope_return, state, level, active,
+                                            created_date))
                         # 2. insert to log
                         connection.commit()
+
                     # return {"active": res_active.json()["active"], "detail": response.json()}
                     return {"active": res_active.json()["active"]}
                 else:
@@ -150,7 +153,7 @@ def get_active_by_state(request_token, state):
             cursor.execute(sql, state)
             result = cursor.fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="Not found.")
+                raise JSONResponse(content={"detail": f"Unauthorized, state deleted"}, status_code=401)
             else:
                 return result
     except Exception as e:
@@ -158,10 +161,10 @@ def get_active_by_state(request_token, state):
         return e
 
     finally:
-        sql = "DELETE FROM service_requested WHERE state = %s"
-        cursor.execute(sql, state)
-        connection.commit()
-        connection.close()
+        with connection.cursor() as cursor:
+            sql = "DELETE FROM service_requested WHERE state = %s"
+            cursor.execute(sql, state)
+            connection.commit()
 
 
 def create_jwt_token(request_viewer, expires_delta: timedelta):
@@ -194,7 +197,7 @@ def get_token_viewer(request_viewer):
             cursor.execute(sql, token)
             result = cursor.fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="Not found.")
+                raise JSONResponse(content={"detail": f"Unauthorized, invalid service id"}, status_code=401)
             else:
                 access_token_expires = timedelta(minutes=30)  # Token expiration time
                 access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
