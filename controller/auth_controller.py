@@ -301,7 +301,7 @@ def get_hosname(hoscode):
             cursor.execute(sql, hoscode)
             result = cursor.fetchone()
 
-            if result is None:
+            if result is None or result["hosname"] is None:
                 raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
             else:
                 return result
