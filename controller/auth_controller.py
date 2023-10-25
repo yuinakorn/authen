@@ -302,7 +302,7 @@ def get_hosname(hoscode):
             result = cursor.fetchone()
 
             if result is None or result["hosname"] is None:
-                raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
+                raise HTTPException(status_code=404, detail="Not found.")
             else:
                 return result
 
