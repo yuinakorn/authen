@@ -1,3 +1,4 @@
+import asyncio
 import urllib
 import requests
 from dotenv import dotenv_values
@@ -9,6 +10,8 @@ import datetime
 import pytz
 import jwt
 from datetime import datetime, timedelta
+
+from concurrent.futures import ThreadPoolExecutor
 
 config_env = dotenv_values(".env")
 
@@ -137,7 +140,14 @@ def get_callback(code, state):
         return e
 
 
-async def check_account_token(token):
+# def run_sync(coro_func):
+#     def wrapper(*args, **kwargs):
+#         loop = asyncio.get_event_loop()
+#         return loop.run_in_executor(ThreadPoolExecutor(), lambda: asyncio.ensure_future(coro_func(*args, **kwargs)))
+#     return wrapper
+#
+
+def check_account_token(token):
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
                                  password=config_env["DB_PASSWORD"],
@@ -153,28 +163,27 @@ async def check_account_token(token):
             result = cursor.fetchone()
             print(result)
             if result is None:
-                print("None")
-                return 0
+                return {"result": 0}
             else:
-                print("result")
-                return 1
+                return {"result": 1}
 
     except Exception as e:
         print(e)
-        return 0
+        return {"result": 0}
 
 
 async def get_active_by_state(request_token, state):
     token = request_token.account_token
     is_token = check_account_token(token)
-    print("token return", is_token)
-    if is_token == 0:
-        print("token is ", is_token)
-        raise JSONResponse(content={"detail": f"Unauthorized"}, status_code=401)
-
-    else:
-        # print(is_token)
-        return {"detail": f"Authorized"}
+    pass
+    # print("token return", is_token["result"])
+    # if is_token["result"] == 0:
+    #     print("token is ", is_token)
+    #     raise JSONResponse(content={"detail": f"Unauthorized"}, status_code=401)
+    #
+    # else:
+    #     # print(is_token)
+    #     return {"detail": f"Authorized"}
         # pass
         # connection = pymysql.connect(host=config_env["DB_HOST"],
         #                              user=config_env["DB_USER"],
@@ -262,7 +271,7 @@ def get_province(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="Not found.")
+                raise JSONResponse(content={"detail": f"Unauthorized, token is invalid."}, status_code=401)
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM province_list"
@@ -293,7 +302,7 @@ def get_hosname(hoscode):
             result = cursor.fetchone()
 
             if result is None:
-                raise HTTPException(status_code=404, detail=f"{hoscode} Not found.")
+                raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
             else:
                 return result
 
@@ -317,14 +326,14 @@ def get_script_provider(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="Not found.")
+                raise JSONResponse(content={"detail": f"Unauthorized, token is invalid."}, status_code=401)
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM c_script_provider WHERE active = 1"
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
-                        raise HTTPException(status_code=404, detail="Not found.")
+                        raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
                     else:
                         return result
     except Exception as e:
