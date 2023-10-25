@@ -278,7 +278,7 @@ def get_province(request_token):
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
-                        raise HTTPException(status_code=404, detail="Not found.")
+                        raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
                     else:
                         return result
     except Exception as e:
