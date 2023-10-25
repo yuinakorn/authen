@@ -1,17 +1,18 @@
-import asyncio
 import urllib
+import datetime
+import urllib
+from datetime import datetime, timedelta
+
+import jwt
+import pymysql.cursors
+import pytz
 import requests
 from dotenv import dotenv_values
 from fastapi import HTTPException
-from starlette.responses import JSONResponse
-from controller.check_permis_controller import check_permis
-import pymysql.cursors
-import datetime
-import pytz
-import jwt
-from datetime import datetime, timedelta
+from starlette.responses import JSONResponse, Response
 
-from concurrent.futures import ThreadPoolExecutor
+from controller.check_permis_controller import check_permis
+import jsonpickle
 
 config_env = dotenv_values(".env")
 
@@ -302,7 +303,12 @@ def get_hosname(hoscode):
             result = cursor.fetchone()
 
             if result is None or result["hosname"] is None:
-                raise HTTPException(status_code=404, detail="Not found.")
+                data = {"detail": "Not found."}
+                json_data = jsonpickle.encode(data)
+                # status_code = 404
+                return Response(content=json_data, status_code=404, media_type="application/json")
+
+                # raise HTTPException(status_code=404, detail="Not found.")
             else:
                 return result
 
