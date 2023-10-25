@@ -1,6 +1,6 @@
 import requests
 from fastapi import FastAPI, APIRouter
-from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, get_province, get_hosname
+from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, get_province, get_hosname, get_script_provider
 from models.auth_model import AuthBase, ViewerBase
 
 router = APIRouter(tags=["authentication"])
@@ -37,6 +37,11 @@ async def read_province_list(request_token: AuthBase):
 @router2.get("/hoscode/")
 async def read_hosname_by_hoscode(hoscode: str):
     return get_hosname(hoscode)
+
+
+@router2.post("/script_provider/")
+async def read_script_provider(request_token: AuthBase):
+    return get_script_provider(request_token)
 
 
 router3 = APIRouter(tags=["policy"])
