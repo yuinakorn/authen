@@ -110,15 +110,15 @@ def get_callback(code, state):
                                    (service_id, client_id, hcode, scope_return, state, level, active, created_date))
                 # if inserted to return
                 if cursor.rowcount == 1:
-                    # insert to temporary table
+                    # 1. insert to temporary table
                     connection.commit()
                     with connection.cursor() as cursor:
                         sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                         cursor.execute(sql,
                                        (service_id, client_id, hcode, scope_return, state, level, active, created_date))
-                    # insert to log
-                    connection.commit()
+                        # 2. insert to log
+                        connection.commit()
                     # return {"active": res_active.json()["active"], "detail": response.json()}
                     return {"active": res_active.json()["active"]}
                 else:
