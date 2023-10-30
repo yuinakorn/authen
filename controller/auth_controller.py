@@ -1,4 +1,3 @@
-import urllib
 import datetime
 import urllib
 from datetime import datetime, timedelta
@@ -307,7 +306,7 @@ def get_province(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
+                return Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
                                status_code=401,
                                media_type="application/json")
             else:
@@ -316,7 +315,7 @@ def get_province(request_token):
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
-                        raise Response(content=jsonpickle.encode({"detail": "Not found."}),
+                        return Response(content=jsonpickle.encode({"detail": "Not found."}),
                                        status_code=404,
                                        media_type="application/json")
                     else:
@@ -342,7 +341,7 @@ def get_hosname(hoscode):
             result = cursor.fetchone()
 
             if result is None or result["hosname"] is None:
-                raise Response(content=jsonpickle.encode({"detail": f"Hcode {hoscode} Not found."}), status_code=404,
+                return Response(content=jsonpickle.encode({"detail": f"Hcode {hoscode} Not found."}), status_code=404,
                                media_type="application/json")
                 # raise HTTPException(status_code=404, detail="Not found.")
             else:
@@ -368,7 +367,7 @@ def get_script_provider(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
+                return Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
                                status_code=401,
                                media_type="application/json")
             else:
