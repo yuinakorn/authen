@@ -162,7 +162,7 @@ def check_account_token(token):
             sql = "SELECT * FROM service_api WHERE account_token = %s"
             cursor.execute(sql, token)
             result = cursor.fetchone()
-            print(result)
+            print("result = ", result)
             if result is None:
                 return {"result": 0}
             else:
@@ -173,10 +173,42 @@ def check_account_token(token):
         return {"result": 0}
 
 
-async def get_active_by_state(request_token, state):
+def get_active_by_state(request_token, state):
     token = request_token.account_token
     is_token = check_account_token(token)
-    pass
+    if is_token["result"] == 0:
+        raise JSONResponse(content={"detail": f"Unauthorized, Service id is invalid."}, status_code=401)
+    else:
+        connection = pymysql.connect(host=config_env["DB_HOST"],
+                                     user=config_env["DB_USER"],
+                                     password=config_env["DB_PASSWORD"],
+                                     db=config_env["DB_NAME"],
+                                     charset=config_env["DB_CHARSET"],
+                                     port=int(config_env["DB_PORT"]),
+                                     cursorclass=pymysql.cursors.DictCursor
+                                     )
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT * FROM service_requested WHERE state = %s"
+                cursor.execute(sql, state)
+                result = cursor.fetchone()
+                if result is None:
+                    raise JSONResponse(content={"detail": f"Unauthorized, state not found or deleted"}, status_code=401)
+                else:
+                    return result
+
+        except Exception as e:
+            print(e)
+            return e
+
+        finally:
+            with connection.cursor() as cursor:
+                sql = "DELETE FROM service_requested WHERE state = %s"
+                cursor.execute(sql, state)
+                connection.commit()
+
+    return is_token
+    # pass
     # print("token return", is_token["result"])
     # if is_token["result"] == 0:
     #     print("token is ", is_token)
@@ -185,34 +217,34 @@ async def get_active_by_state(request_token, state):
     # else:
     #     # print(is_token)
     #     return {"detail": f"Authorized"}
-        # pass
-        # connection = pymysql.connect(host=config_env["DB_HOST"],
-        #                              user=config_env["DB_USER"],
-        #                              password=config_env["DB_PASSWORD"],
-        #                              db=config_env["DB_NAME"],
-        #                              charset=config_env["DB_CHARSET"],
-        #                              port=int(config_env["DB_PORT"]),
-        #                              cursorclass=pymysql.cursors.DictCursor
-        #                              )
-        # try:
-        #     with connection.cursor() as cursor:
-        #         sql = "SELECT * FROM service_requested WHERE state = %s"
-        #         cursor.execute(sql, state)
-        #         result = cursor.fetchone()
-        #         if result is None:
-        #             raise JSONResponse(content={"detail": f"Unauthorized, state deleted"}, status_code=401)
-        #         else:
-        #             return result
-        #
-        # except Exception as e:
-        #     print(e)
-        #     return e
-        #
-        # finally:
-        #     with connection.cursor() as cursor:
-        #         sql = "DELETE FROM service_requested WHERE state = %s"
-        #         cursor.execute(sql, state)
-        #         connection.commit()
+    # pass
+    # connection = pymysql.connect(host=config_env["DB_HOST"],
+    #                              user=config_env["DB_USER"],
+    #                              password=config_env["DB_PASSWORD"],
+    #                              db=config_env["DB_NAME"],
+    #                              charset=config_env["DB_CHARSET"],
+    #                              port=int(config_env["DB_PORT"]),
+    #                              cursorclass=pymysql.cursors.DictCursor
+    #                              )
+    # try:
+    #     with connection.cursor() as cursor:
+    #         sql = "SELECT * FROM service_requested WHERE state = %s"
+    #         cursor.execute(sql, state)
+    #         result = cursor.fetchone()
+    #         if result is None:
+    #             raise JSONResponse(content={"detail": f"Unauthorized, state deleted"}, status_code=401)
+    #         else:
+    #             return result
+    #
+    # except Exception as e:
+    #     print(e)
+    #     return e
+    #
+    # finally:
+    #     with connection.cursor() as cursor:
+    #         sql = "DELETE FROM service_requested WHERE state = %s"
+    #         cursor.execute(sql, state)
+    #         connection.commit()
 
 
 def create_jwt_token(request_viewer, expires_delta: timedelta):
@@ -272,14 +304,18 @@ def get_province(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise JSONResponse(content={"detail": f"Unauthorized, token is invalid."}, status_code=401)
+                raise Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
+                               status_code=401,
+                               media_type="application/json")
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM province_list"
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
-                        raise JSONResponse(content={"detail": f"Not found."}, status_code=404)
+                        raise Response(content=jsonpickle.encode({"detail": "Not found."}),
+                                       status_code=404,
+                                       media_type="application/json")
                     else:
                         return result
     except Exception as e:
@@ -303,11 +339,8 @@ def get_hosname(hoscode):
             result = cursor.fetchone()
 
             if result is None or result["hosname"] is None:
-                data = {"detail": "Not found."}
-                json_data = jsonpickle.encode(data)
-                # status_code = 404
-                return Response(content=json_data, status_code=404, media_type="application/json")
-
+                raise Response(content=jsonpickle.encode({"detail": f"Hcode {hoscode} Not found."}), status_code=404,
+                               media_type="application/json")
                 # raise HTTPException(status_code=404, detail="Not found.")
             else:
                 return result
@@ -332,7 +365,9 @@ def get_script_provider(request_token):
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
-                raise JSONResponse(content={"detail": f"Unauthorized, token is invalid."}, status_code=401)
+                raise Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
+                               status_code=401,
+                               media_type="application/json")
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM c_script_provider WHERE active = 1"
