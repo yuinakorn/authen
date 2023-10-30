@@ -193,7 +193,9 @@ def get_active_by_state(request_token, state):
                 cursor.execute(sql, state)
                 result = cursor.fetchone()
                 if result is None:
-                    raise JSONResponse(content={"detail": f"Unauthorized, state not found or deleted"}, status_code=401)
+                    raise Response(content=jsonpickle.encode({"detail": f"Unauthorized, state deleted"}),
+                                   status_code=401,
+                                   media_type="application/json")
                 else:
                     return result
 
