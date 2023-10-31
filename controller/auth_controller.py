@@ -382,3 +382,29 @@ def get_script_provider(request_token):
     except Exception as e:
         print(e)
         return e
+
+
+def get_province_code():
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM cprovince"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            if result is None:
+                return Response(content=jsonpickle.encode({"detail": f"Not found."}), status_code=404,
+                                media_type="application/json")
+            else:
+                return result
+    except Exception as e:
+        print(e)
+        return e
+
