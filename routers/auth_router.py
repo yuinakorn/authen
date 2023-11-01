@@ -13,7 +13,7 @@ async def generate_qrcode(request_token: AuthBase, state: str = None):
 
 @router.get("/callback/")
 async def callback(code: str = None, state: str = None):
-    return get_callback(code, state)
+    get_callback(code, state)
 
 
 @router.post("/active/")

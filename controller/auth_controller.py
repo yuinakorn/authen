@@ -126,8 +126,7 @@ def get_callback(code, state):
                         connection.commit()
 
                     # return {"active": res_active.json()["active"], "detail": response.json()}
-                    # return {"active": res_active.json()["active"]}
-                    return "🙂"
+                    return ""
                 else:
                     raise HTTPException(status_code=400, detail="Insert failed.")
 
