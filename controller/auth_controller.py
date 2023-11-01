@@ -126,7 +126,8 @@ def get_callback(code, state):
                         connection.commit()
 
                     # return {"active": res_active.json()["active"], "detail": response.json()}
-                    return {"active": res_active.json()["active"]}
+                    # return {"active": res_active.json()["active"]}
+                    return None
                 else:
                     raise HTTPException(status_code=400, detail="Insert failed.")
 
@@ -193,8 +194,8 @@ def get_active_by_state(request_token, state):
                 result = cursor.fetchone()
                 if result is None:
                     return Response(content=jsonpickle.encode({"detail": f"Unauthorized, state deleted"}),
-                                   status_code=401,
-                                   media_type="application/json")
+                                    status_code=401,
+                                    media_type="application/json")
                 else:
                     print("result = ", result)
                     return result
@@ -209,7 +210,7 @@ def get_active_by_state(request_token, state):
                 cursor.execute(sql, state)
                 connection.commit()
 
-    return is_token
+    # return is_token
     # pass
     # print("token return", is_token["result"])
     # if is_token["result"] == 0:
@@ -307,8 +308,8 @@ def get_province(request_token):
             result = cursor.fetchone()
             if result is None:
                 return Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
-                               status_code=401,
-                               media_type="application/json")
+                                status_code=401,
+                                media_type="application/json")
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM province_list"
@@ -316,8 +317,8 @@ def get_province(request_token):
                     result = cursor.fetchall()
                     if result is None:
                         return Response(content=jsonpickle.encode({"detail": "Not found."}),
-                                       status_code=404,
-                                       media_type="application/json")
+                                        status_code=404,
+                                        media_type="application/json")
                     else:
                         return result
     except Exception as e:
@@ -342,7 +343,7 @@ def get_hosname(hoscode):
 
             if result is None or result["hosname"] is None:
                 return Response(content=jsonpickle.encode({"detail": f"Hcode {hoscode} Not found."}), status_code=404,
-                               media_type="application/json")
+                                media_type="application/json")
                 # raise HTTPException(status_code=404, detail="Not found.")
             else:
                 return result
@@ -368,8 +369,8 @@ def get_script_provider(request_token):
             result = cursor.fetchone()
             if result is None:
                 return Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
-                               status_code=401,
-                               media_type="application/json")
+                                status_code=401,
+                                media_type="application/json")
             else:
                 with connection.cursor() as cursor:
                     sql = "SELECT * FROM c_script_provider WHERE active = 1"
@@ -407,4 +408,3 @@ def get_province_code():
     except Exception as e:
         print(e)
         return e
-
