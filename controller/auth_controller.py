@@ -180,7 +180,7 @@ def check_account_token(token):
             sql = "SELECT * FROM service_api WHERE account_token = %s"
             cursor.execute(sql, token)
             result = cursor.fetchone()
-            print("result = ", result)
+            print("result in chk token = ", result)
             if result is None:
                 return {"result": 0}
             else:
@@ -195,7 +195,9 @@ def get_active_by_state(request_token, state):
     token = request_token.account_token
     is_token = check_account_token(token)
     if is_token["result"] == 0:
-        raise JSONResponse(content={"detail": f"Unauthorized, Service id is invalid."}, status_code=401)
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
     else:
         connection = pymysql.connect(host=config_env["DB_HOST"],
                                      user=config_env["DB_USER"],
@@ -210,12 +212,13 @@ def get_active_by_state(request_token, state):
                 sql = "SELECT * FROM service_requested WHERE state = %s"
                 cursor.execute(sql, state)
                 result = cursor.fetchone()
+                print("result00000 = ", result)
                 if result is None:
                     return Response(content=jsonpickle.encode({"detail": f"Unauthorized, state deleted"}),
                                     status_code=401,
                                     media_type="application/json")
                 else:
-                    print("result = ", result)
+                    print("result => ", result)
                     return result
 
         except Exception as e:
@@ -233,7 +236,9 @@ def get_active_by_client_id(request_token, client_id):
     token = request_token.account_token
     is_token = check_account_token(token)
     if is_token["result"] == 0:
-        raise JSONResponse(content={"detail": f"Unauthorized, Service id is invalid."}, status_code=401)
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
     else:
         connection = pymysql.connect(host=config_env["DB_HOST"],
                                      user=config_env["DB_USER"],
