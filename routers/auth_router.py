@@ -23,17 +23,17 @@ async def callback(code: str = None, state: str = None):
 
 
 @router.post("/active/")
-async def read_active_by_state(request_token: AuthBase, state: str = None):
+async def check_active_by_state(request_token: AuthBase, state: str = None):
     return get_active_by_state(request_token, state)
 
 
 @router.post("/active_by_id/")
-async def read_active_by_client_id(request_token: AuthBase, client_id: str = None):
+async def check_active_by_client_id(request_token: AuthBase, client_id: str = None):
     return get_active_by_client_id(request_token, client_id)
 
 
 @router.post("/viewer/")
-async def read_token_viewer(request_viewer: ViewerBase):
+async def get_token_for_viewer(request_viewer: ViewerBase):
     return get_token_viewer(request_viewer)
 
 
