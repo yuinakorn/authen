@@ -1,9 +1,15 @@
 import requests
-from fastapi import FastAPI, APIRouter
-from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, get_province, get_hosname, get_script_provider, get_province_code
+from fastapi import FastAPI, APIRouter, Request
+from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
+    get_province, get_hosname, get_script_provider, get_province_code, get_client
 from models.auth_model import AuthBase, ViewerBase
 
 router = APIRouter(tags=["authentication"])
+
+
+@router.get("/")
+async def read_client(request: Request):
+    return get_client(request)
 
 
 @router.post("/gen_qrcode/")
@@ -78,4 +84,3 @@ async def read_term_of_user():
                        " 4. การยืนยันตัวตนจะเป็นการยืนยันกับระบบ ThaiD และเมื่อผู้ใช้งานยืนยันตัวตนเรียบร้อยแล้ว ระบบจะทำการส่งข้อมูลการยืนยันตัวตนกลับมายังระบบของสำนักงานสาธารณสุขจังหวัดเชียงใหม่ ประกอบด้วย ชื่อ-สกุล และเลขประจำตัวประชาชนของผู้ยืนยัน <br>"
                        " 5. ระบบของสำนักงานฯ จะทำการตรวจสอบข้อมูลการยืนยันตัวตนกับระบบ ThaiD ว่าตรงกับข้อมูลที่สำนักงานสาธารณสุขจังหวัดเชียงใหม่ ได้ลงทะเบียนเพื่อใช้งานระบบของสำนักงานฯ ไว้หรือไม่ <br>"
                        " 6. ระบบของสำนักงานฯ จะนำข้อมูลที่ได้คืน (Call back) มาจากระบบ ThaiD มาเพื่อเปรียบเทียบความถูกต้องเท่านั้น จะไม่เก็บข้อมูลที่ได้รับคืนมานั้นไว้ในระบบ  <br>"}
-

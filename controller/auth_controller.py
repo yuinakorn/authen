@@ -13,7 +13,26 @@ from starlette.responses import JSONResponse, Response
 from controller.check_permis_controller import check_permis
 import jsonpickle
 
+from user_agents import parse
+
 config_env = dotenv_values(".env")
+
+
+def get_ip_info(ip_address):
+    response = requests.get(f"https://ipinfo.io/{ip_address}/json")
+    return response.json()
+
+
+def get_client(request):
+    client_ip = request.client.host
+    # user_agent = request.headers.get('user-agent')
+    user_agent_string = request.headers.get('user-agent')
+    user_agent = parse(user_agent_string)
+    # ip_info = get_ip_info(client_ip)
+    browser = user_agent.browser.family if user_agent.browser else "Unknown"
+    operating_system = user_agent.os.family if user_agent.os else "Unknown"
+
+    return {"client_ip": client_ip, "user_agent": user_agent, "browser": browser, "os": operating_system}
 
 
 def get_generate_qrcode(request_token, state: str):
@@ -279,7 +298,9 @@ def get_token_viewer(request_viewer):
             cursor.execute(sql, token)
             result = cursor.fetchone()
             if result is None:
-                raise JSONResponse(content={"detail": f"Unauthorized, invalid service id"}, status_code=401)
+                return Response(content=jsonpickle.encode({"detail": "Unauthorized, token is invalid."}),
+                                status_code=401,
+                                media_type="application/json")
             else:
                 access_token_expires = timedelta(minutes=30)  # Token expiration time
                 access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
