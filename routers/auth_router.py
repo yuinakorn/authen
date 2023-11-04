@@ -7,7 +7,7 @@ from models.auth_model import AuthBase, ViewerBase
 router = APIRouter(tags=["authentication"])
 
 
-@router.get("/")
+@router.get("/client/")
 async def read_client(request: Request):
     return get_client(request)
 
