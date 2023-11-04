@@ -1,7 +1,7 @@
 import requests
 from fastapi import FastAPI, APIRouter, Request
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
-    get_province, get_hosname, get_script_provider, get_province_code, get_client
+    get_province, get_hosname, get_script_provider, get_province_code, get_client, get_active_by_client_id
 from models.auth_model import AuthBase, ViewerBase
 
 router = APIRouter(tags=["authentication"])
@@ -25,6 +25,11 @@ async def callback(code: str = None, state: str = None):
 @router.post("/active/")
 async def read_active_by_state(request_token: AuthBase, state: str = None):
     return get_active_by_state(request_token, state)
+
+
+@router.post("/active_by_id/")
+async def read_active_by_client_id(request_token: AuthBase, client_id: str = None):
+    return get_active_by_client_id(request_token, client_id)
 
 
 @router.post("/viewer/")
