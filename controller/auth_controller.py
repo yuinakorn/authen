@@ -32,7 +32,7 @@ def get_client(request):
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
     operating_system = user_agent.os.family if user_agent.os else "Unknown"
 
-    return {"client_ip": public_ip, "user_agent": user_agent, "browser": browser, "os": operating_system}
+    return {"client_ip": public_ip, "browser": browser, "os": operating_system, "user_agent": user_agent}
 
 
 def get_generate_qrcode(request_token, state: str):
