@@ -11,7 +11,8 @@ config_env = dotenv_values(".env")
 app = FastAPI()
 
 origins = [
-    "http://localhost:8080",
+    config_env["CORS_ORIGIN1"],
+    config_env["CORS_ORIGIN2"]
 ]
 
 app.add_middleware(
