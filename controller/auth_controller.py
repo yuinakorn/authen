@@ -145,15 +145,21 @@ def get_callback(code, state):
                         connection.commit()
 
                     # return {"active": res_active.json()["active"], "detail": response.json()}
-                    return ''
+                    return "กำลังดำเนินการ"
                 else:
-                    raise HTTPException(status_code=400, detail="Insert failed.")
+                    return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
+                                    status_code=400,
+                                    media_type="application/json")
 
             else:
-                raise HTTPException(status_code=400, detail="It is not active.")
+                return Response(content=jsonpickle.encode({"detail": f"Unauthorized, CID is not active."}),
+                                status_code=401,
+                                media_type="application/json")
 
         else:
-            raise HTTPException(status_code=400, detail="Invalid input. Code and state are required.")
+            return Response(content=jsonpickle.encode({"detail": f"Invalid input. Code and state are required."}),
+                            status_code=400,
+                            media_type="application/json")
     except Exception as e:
         print(e)
         return e
