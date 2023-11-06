@@ -145,7 +145,10 @@ def get_callback(code, state):
                         connection.commit()
 
                     # return {"active": res_active.json()["active"], "detail": response.json()}
-                    return "กำลังดำเนินการ"
+                    if service_id == "2":
+                        return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
+                    else:
+                        return "กำลังดำเนินการ"
                 else:
                     return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
                                     status_code=400,
