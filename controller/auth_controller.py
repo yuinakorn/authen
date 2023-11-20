@@ -47,7 +47,7 @@ def get_generate_qrcode(request_token, state: str):
                                  )
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM service_api WHERE account_token = %s"
+            sql = "SELECT * FROM service_api INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id WHERE account_token = %s"
             cursor.execute(sql, token)
             result = cursor.fetchone()
             if result is None:
@@ -56,9 +56,9 @@ def get_generate_qrcode(request_token, state: str):
                 pass
 
         url = config_env["URL_AUTH"]
-        client_id = config_env["CLIENT_ID"]
-        redirect_uri = config_env["REDIRECT_URI"]
-        scope = config_env["SCOPE"]
+        client_id = result["client_id"]
+        redirect_uri = result["callback_url"]
+        scope = result["scope"]
         response_type = config_env["RESPONSE_TYPE"]
 
         get_url = f"{url}?response_type={response_type}&client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&state={state}"
@@ -189,7 +189,7 @@ def check_account_token(token):
             sql = "SELECT * FROM service_api WHERE account_token = %s"
             cursor.execute(sql, token)
             result = cursor.fetchone()
-            print("result in chk token = ", result)
+            # print("result in chk token = ", result)
             if result is None:
                 return {"result": 0}
             else:
@@ -375,7 +375,7 @@ def get_province(request_token):
                                  )
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM service_api WHERE account_token = %s"
+            sql = "SELECT * FROM service_api  WHERE account_token = %s"
             cursor.execute(sql, request_token.account_token)
             result = cursor.fetchone()
             if result is None:
@@ -384,7 +384,8 @@ def get_province(request_token):
                                 media_type="application/json")
             else:
                 with connection.cursor() as cursor:
-                    sql = "SELECT * FROM province_list"
+                    sql = "SELECT * " \
+                          " FROM province_list"
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
@@ -480,3 +481,37 @@ def get_province_code():
     except Exception as e:
         print(e)
         return e
+
+
+def post_version(request_token):
+    token = request_token.account_token
+    is_token = check_account_token(token)
+    if is_token["result"] == 0:
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
+    else:
+        connection = pymysql.connect(host=config_env["DB_HOST"],
+                                     user=config_env["DB_USER"],
+                                     password=config_env["DB_PASSWORD"],
+                                     db=config_env["DB_NAME"],
+                                     charset=config_env["DB_CHARSET"],
+                                     port=int(config_env["DB_PORT"]),
+                                     cursorclass=pymysql.cursors.DictCursor
+                                     )
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT * FROM sys_config"
+                cursor.execute(sql)
+                result = cursor.fetchone()
+                if result is None:
+                    return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                                    status_code=401,
+                                    media_type="application/json")
+                else:
+                    return result
+
+        except Exception as e:
+            print(e)
+            return e
+
