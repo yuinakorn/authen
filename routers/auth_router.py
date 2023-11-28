@@ -1,5 +1,4 @@
-import requests
-from fastapi import FastAPI, APIRouter, Request
+from fastapi import APIRouter, Request
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
     get_province, get_hosname, get_script_provider, get_province_code, get_client, get_active_by_client_id, post_version
 from models.auth_model import AuthBase, ViewerBase

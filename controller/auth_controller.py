@@ -19,6 +19,7 @@ config_env = dotenv_values(".env")
 
 
 def get_public_ip():
+
     response = requests.get('https://httpbin.org/ip')
     ip_data = response.json()
     return ip_data.get('origin')
@@ -384,8 +385,8 @@ def get_province(request_token):
                                 media_type="application/json")
             else:
                 with connection.cursor() as cursor:
-                    sql = "SELECT * " \
-                          " FROM province_list"
+                    sql = "SELECT province_list.*,service_api.account_token FROM province_list " \
+                          " INNER JOIN service_api ON province_list.service_id = service_api.service_id"
                     cursor.execute(sql)
                     result = cursor.fetchall()
                     if result is None:
