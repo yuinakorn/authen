@@ -219,7 +219,8 @@ def get_active_by_state(request_token, state):
                                      )
         try:
             with connection.cursor() as cursor:
-                sql = "SELECT * FROM service_requested WHERE state = %s"
+                sql = "SELECT * FROM service_requested WHERE state = %s " \
+                      "ORDER BY created_date DESC LIMIT 1"
                 cursor.execute(sql, state)
                 result = cursor.fetchone()
                 print("result00000 = ", result)
