@@ -223,7 +223,6 @@ def get_active_by_state(request_token, state):
                       "ORDER BY created_date DESC LIMIT 1"
                 cursor.execute(sql, state)
                 result = cursor.fetchone()
-                print("result00000 = ", result)
                 if result is None:
                     return Response(content=jsonpickle.encode({"detail": f"Unauthorized, state deleted"}),
                                     status_code=401,
