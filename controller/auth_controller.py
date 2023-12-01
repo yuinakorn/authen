@@ -19,7 +19,6 @@ config_env = dotenv_values(".env")
 
 
 def get_public_ip():
-
     response = requests.get('https://httpbin.org/ip')
     ip_data = response.json()
     return ip_data.get('origin')
@@ -427,6 +426,33 @@ def get_hosname(hoscode):
         return e
 
 
+def get_hosname_all():
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT hoscode," \
+                  "concat('[',hoscode,']',' ',REPLACE(hosname,'โรงพยาบาลส่งเสริมสุขภาพตำบล','รพ.สต.')) hosname FROM chospital " \
+                  "WHERE hostype not in ('01','02','03','10','13','14','15','16') " \
+                  "AND provcode in ('50','85')"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            if result is None:
+                return Response(content=jsonpickle.encode({"detail": f"Not found."}), status_code=404,
+                                media_type="application/json")
+            else:
+                return result
+    except Exception as e:
+        print(e)
+        return e
+
+
 def get_script_provider(request_token):
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
@@ -504,7 +530,7 @@ def post_version(request_token):
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM sys_config"
                 cursor.execute(sql)
-                result = cursor.fetchone()
+                result = cursor.fetchall()
                 if result is None:
                     return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
                                     status_code=401,
@@ -515,4 +541,3 @@ def post_version(request_token):
         except Exception as e:
             print(e)
             return e
-
