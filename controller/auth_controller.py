@@ -13,9 +13,38 @@ from starlette.responses import JSONResponse, Response
 from controller.check_permis_controller import check_permis
 import jsonpickle
 
+import re
+
 from user_agents import parse
 
 config_env = dotenv_values(".env")
+
+
+def check_register(req):
+    username = req.username
+    password = req.password
+    token = req.account_token
+
+    if check_account_token(token)["result"] == 0:
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, token is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
+    else:
+        # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
+        if len(password) < 8 or len(username) < 2:
+            return Response(content=jsonpickle.encode({"detail": f"Username must be at least 2 characters, Password must be at least 8 characters."}),
+                            status_code=400,
+                            media_type="application/json")
+        elif not re.search(pattern, password):
+            return Response(content=jsonpickle.encode(
+                {"detail": f"Password must be at least 8 characters, 1 uppercase, 1 lowercase, 1 special character."}),
+                            status_code=400,
+                            media_type="application/json")
+        else:
+            pass
+
+    return {"result": True}
 
 
 def get_public_ip():
