@@ -508,7 +508,7 @@ def get_hosname_all():
             sql = "SELECT hoscode," \
                   "REPLACE(hosname,'โรงพยาบาลส่งเสริมสุขภาพตำบล','รพ.สต.') hosname, provcode FROM chospital " \
                   "WHERE hostype not in ('01','02','03','10','13','14','15','16') " \
-                  "AND provcode in ('50','51','58','85')"
+                  "AND provcode in ('50','51','58','85','94')"
             cursor.execute(sql)
             result = cursor.fetchall()
             if result is None:
