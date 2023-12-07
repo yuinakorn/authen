@@ -45,7 +45,7 @@ def check_login(req):  # login by username and password
         elif username in user_not_allow:
             return Response(content=jsonpickle.encode(
                 {"status": "error", "http_status": "400", "error": "2",
-                 "detail": f"Username นี้ไม่สามารถใช้งานได้ เนื่องจากความปลอดภัย"}),
+                 "detail": f"Username {username} ไม่สามารถใช้งานได้ เนื่องจากความปลอดภัย"}),
                 status_code=200,
                 media_type="application/json")
 
