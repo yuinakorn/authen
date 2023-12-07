@@ -37,10 +37,15 @@ def check_permis(prov_code, hcode, cid):
                     position_list = json.load(file)
                 position_allow = position_list
 
+                # matching_positions = [item for item in data if
+                #                       item["position"] and isinstance(item["position"], str) and item[
+                #                           "position"].startswith(
+                #                           tuple(position_allow))]
+                # result = 1 if len(matching_positions) > 0 else 0
+
                 matching_positions = [item for item in data if
-                                      item["position"] and isinstance(item["position"], str) and item[
-                                          "position"].startswith(
-                                          tuple(position_allow))]
+                                      item["position"] and isinstance(item["position"], str) and
+                                      any(pos in item["position"] for pos in position_allow)]
                 result = 1 if len(matching_positions) > 0 else 0
 
                 return result

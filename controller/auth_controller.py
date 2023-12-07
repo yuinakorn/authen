@@ -1,4 +1,5 @@
 import datetime
+import json
 import urllib
 from datetime import datetime, timedelta
 
@@ -20,10 +21,14 @@ from user_agents import parse
 config_env = dotenv_values(".env")
 
 
-def check_register(req):
+def check_login(req):  # login by username and password
     username = req.username
     password = req.password
     token = req.account_token
+    hoscode = req.hoscode
+
+    user_not_allow = ["admin", "root", "sa", "sysadmin", "sys", "system", "administrator", "superuser", "super", "adm",
+                      "user", "test", "guest", "demo"]
 
     if check_account_token(token)["result"] == 0:
         return Response(content=jsonpickle.encode({"detail": f"Unauthorized, token is invalid."}),
@@ -33,18 +38,52 @@ def check_register(req):
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
         if len(password) < 8 or len(username) < 2:
-            return Response(content=jsonpickle.encode({"detail": f"Username must be at least 2 characters, Password must be at least 8 characters."}),
-                            status_code=400,
+            return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
+                                                       "detail": f"Username ต้องยาวกว่า 2 ตัวอักษร, Password ต้องยาว 8 ตัวอักษรขึ้นไป"}),
+                            status_code=200,
                             media_type="application/json")
+        elif username in user_not_allow:
+            return Response(content=jsonpickle.encode(
+                {"status": "error", "http_status": "400", "error": "2",
+                 "detail": f"Username นี้ไม่สามารถใช้งานได้ เนื่องจากความปลอดภัย"}),
+                status_code=200,
+                media_type="application/json")
+
         elif not re.search(pattern, password):
             return Response(content=jsonpickle.encode(
-                {"detail": f"Password must be at least 8 characters, 1 uppercase, 1 lowercase, 1 special character."}),
-                            status_code=400,
-                            media_type="application/json")
+                {"status": "error", "http_status": "400", "error": "3",
+                 "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
+                status_code=200,
+                media_type="application/json")
         else:
             pass
 
-    return {"result": True}
+    payload = {}
+    headers = {}
+
+    url = config_env["URL_EXP"] + "/user_authen/" + f"{hoscode}?user={username}&password={password}"
+    print(url)
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    with open('position.json', 'r') as file:
+        # Load the JSON data from the file
+        position_list = json.load(file)
+    position_allow = position_list
+
+    data = response.json()
+
+    matching_positions = [item for item in data if
+                          item["entryposition"] and isinstance(item["entryposition"], str) and
+                          any(pos in item["entryposition"] for pos in position_allow)]
+    result = 1 if len(matching_positions) > 0 else 0
+
+    if result == 1:
+        return {"status": "success", "result": result, "detail": response.json()}
+    else:
+        return Response(content=jsonpickle.encode({"status": "error", "http_status": "401", "error": "4",
+                                                   "detail": f"Unauthorized, username or password or position is invalid."}),
+                        status_code=200,
+                        media_type="application/json")
 
 
 def get_public_ip():

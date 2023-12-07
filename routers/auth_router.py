@@ -8,9 +8,9 @@ import controller.auth_controller as auth_controller
 router = APIRouter(tags=["authentication"])
 
 
-@router.post("/register/")
-async def check_register(req: RegBase):
-    return auth_controller.check_register(req)
+@router.post("/check_login/")
+async def check_login(req: RegBase):
+    return auth_controller.check_login(req)
 
 
 @router.get("/client/")

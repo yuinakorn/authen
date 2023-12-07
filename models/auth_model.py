@@ -9,6 +9,7 @@ class RegBase(BaseModel):
     account_token: str
     username: str
     password: str
+    hoscode: str
 
 
 class ViewerBase(BaseModel):
