@@ -1,3 +1,4 @@
+import base64
 import datetime
 import json
 import urllib
@@ -163,7 +164,12 @@ def get_callback(code, state):
 
             grant_type = config_env["GRANT_TYPE"]
             redirect_uri = config_env["REDIRECT_URI"]
-            auth_basic = config_env["AUTH_BASIC"]
+
+            # auth_basic = config_env["AUTH_BASIC"]
+
+            # make base64 with client_id and client_secret
+            client_id_secret = config_env["CLIENT_ID"] + ":" + config_env["CLIENT_SECRET"]
+            auth_basic = base64.b64encode(client_id_secret.encode("utf-8"))
 
             encoded_url = urllib.parse.quote(redirect_uri, safe="")
 
