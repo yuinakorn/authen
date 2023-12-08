@@ -8,7 +8,8 @@ import pymysql.cursors
 import pytz
 import requests
 from dotenv import dotenv_values
-from fastapi import HTTPException
+from fastapi import HTTPException, FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse, Response
 
 from controller.check_permis_controller import check_permis
@@ -19,6 +20,23 @@ import re
 from user_agents import parse
 
 config_env = dotenv_values(".env")
+
+origins = [
+    config_env["CORS_ORIGIN1"],
+    config_env["CORS_ORIGIN2"],
+    config_env["CORS_ORIGIN3"]
+]
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    # allow_origins=origins,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def check_login(req):  # login by username and password
