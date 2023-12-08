@@ -9,16 +9,16 @@ config_env = dotenv_values(".env")
 
 app = FastAPI()
 
-origins = [
-    config_env["CORS_ORIGIN1"],
-    config_env["CORS_ORIGIN2"],
-    config_env["CORS_ORIGIN3"]
-]
+# origins = [
+#     config_env["CORS_ORIGIN1"],
+#     config_env["CORS_ORIGIN2"],
+#     config_env["CORS_ORIGIN3"]
+# ]
 
 app.add_middleware(
     CORSMiddleware,
     # allow_origins=origins,
-    allow_origins=["*"],
+    allow_origins=["https://ihims-link.pattanihis.net"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
