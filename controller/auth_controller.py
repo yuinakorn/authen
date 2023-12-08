@@ -35,29 +35,29 @@ def check_login(req):  # login by username and password
                         status_code=401,
                         media_type="application/json")
     else:
-        pass  # just test
+        #pass  # just test
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
-        # pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
-        # if len(password) < 8 or len(username) < 2:
-        #     return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
-        #                                                "detail": f"Username ต้องยาวกว่า 2 ตัวอักษร, Password ต้องยาว 8 ตัวอักษรขึ้นไป"}),
-        #                     status_code=200,
-        #                     media_type="application/json")
-        # elif username in user_not_allow:
-        #     return Response(content=jsonpickle.encode(
-        #         {"status": "error", "http_status": "400", "error": "2",
-        #          "detail": f"Username {username} ไม่สามารถใช้งานได้ เนื่องจากความปลอดภัย"}),
-        #         status_code=200,
-        #         media_type="application/json")
-        #
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
+        if len(password) < 3 or len(username) < 2:
+            return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
+                                                       "detail": f"Username ต้องยาวกว่า 2 ตัวอักษร, Password ต้องยาว 8 ตัวอักษรขึ้นไป"}),
+                            status_code=200,
+                            media_type="application/json")
+        elif username in user_not_allow:
+            return Response(content=jsonpickle.encode(
+                {"status": "error", "http_status": "400", "error": "2",
+                 "detail": f"Username {username} ไม่สามารถใช้งานได้ เนื่องจากความปลอดภัย"}),
+                status_code=200,
+                media_type="application/json")
+
         # elif not re.search(pattern, password):
         #     return Response(content=jsonpickle.encode(
         #         {"status": "error", "http_status": "400", "error": "3",
         #          "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
         #         status_code=200,
         #         media_type="application/json")
-        # else:
-        #     pass
+        else:
+            pass
 
     payload = {}
     headers = {}
