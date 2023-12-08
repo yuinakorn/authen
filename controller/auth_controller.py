@@ -37,7 +37,7 @@ def check_login(req):  # login by username and password
                         status_code=401,
                         media_type="application/json")
     else:
-        #pass  # just test
+        # pass  # just test
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
         if len(password) < 3 or len(username) < 2:
@@ -162,18 +162,35 @@ def get_callback(code, state):
             utc_now = datetime.now(pytz.utc)
             created_date = utc_now.astimezone(thailand_tz)
 
-            grant_type = config_env["GRANT_TYPE"]
-            redirect_uri = config_env["REDIRECT_URI"]
+            # grant_type = config_env["GRANT_TYPE"]
+
+            with connection.cursor() as cursor:
+                sql = "SELECT * FROM service_api " \
+                      "INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id " \
+                      "WHERE service_id = %s"
+                cursor.execute(sql, service_id)
+                result = cursor.fetchone()
+                if result is None:
+                    return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                                    status_code=401,
+                                    media_type="application/json")
+                else:
+                    thaid_redirect_uri = result["callback_url"]
+                    thaid_client_id = result["client_id"]
+                    thaid_client_secret = result["client_secret"]
+                    print("thaid_redirect_uri: ", thaid_redirect_uri)
+
+            # redirect_uri = config_env["REDIRECT_URI"]
 
             # auth_basic = config_env["AUTH_BASIC"]
 
             # make base64 with client_id and client_secret
-            client_id_secret = config_env["CLIENT_ID"] + ":" + config_env["CLIENT_SECRET"]
+            client_id_secret = thaid_client_id + ":" + thaid_client_secret
             auth_basic = base64.b64encode(client_id_secret.encode("utf-8"))
 
-            encoded_url = urllib.parse.quote(redirect_uri, safe="")
+            encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
 
-            payload = f"grant_type={grant_type}&code={code}&redirect_uri={encoded_url}"
+            payload = f"grant_type=authorization_code&code={code}&redirect_uri={encoded_url}"
 
             headers = {
                 'Content-Type': config_env["CONTENT_TYPE"],
