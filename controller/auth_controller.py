@@ -186,7 +186,10 @@ def get_callback(code, state):
 
             # make base64 with client_id and client_secret
             client_id_secret = thaid_client_id + ":" + thaid_client_secret
+            print("client_id_secret: ", client_id_secret)
             auth_basic = base64.b64encode(client_id_secret.encode("utf-8"))
+
+            print("auth_basic: ", auth_basic)
 
             encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
 
