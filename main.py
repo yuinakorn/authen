@@ -15,6 +15,8 @@ origins = [
     config_env["CORS_ORIGIN3"]
 ]
 
+print(origins)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

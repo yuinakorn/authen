@@ -1,6 +1,5 @@
 from dotenv import dotenv_values
 from fastapi import APIRouter, Request, FastAPI
-from starlette.middleware.cors import CORSMiddleware
 
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
     get_province, get_hosname, get_script_provider, get_province_code, get_client, get_active_by_client_id, post_version
@@ -13,21 +12,6 @@ config_env = dotenv_values(".env")
 
 
 app = FastAPI()
-
-origins = [
-    config_env["CORS_ORIGIN1"],
-    config_env["CORS_ORIGIN2"],
-    config_env["CORS_ORIGIN3"]
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    # allow_origins=origins,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @router.post("/check_login/")
