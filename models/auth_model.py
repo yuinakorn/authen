@@ -10,6 +10,7 @@ class RegBase(BaseModel):
     username: str
     password: str
     hoscode: str
+    thaid_id: int
 
 
 class ViewerBase(BaseModel):

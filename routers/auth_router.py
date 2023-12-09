@@ -16,7 +16,7 @@ app = FastAPI()
 
 @router.post("/check_login/")
 async def check_login(req: RegBase):
-    return auth_controller.check_login(req)
+    return await auth_controller.check_login(req)
 
 
 @router.get("/client/")

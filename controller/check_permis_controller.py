@@ -56,3 +56,30 @@ def check_permis(prov_code, hcode, cid):
         print(e)
         return 0
 
+
+def get_exp_url(id: int):
+    print("id in get_exp_url: ", id)
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = f"SELECT * FROM thaid_client WHERE id = {id}"
+            print("sql in get_exp_url: ", sql)
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            if result is None:
+                return 0
+            else:
+                url_exp = result["url_exp"]
+                return url_exp
+
+    except Exception as e:
+        print(e)
+        return 0
+

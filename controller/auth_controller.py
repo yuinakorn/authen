@@ -13,7 +13,7 @@ from fastapi import HTTPException, FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse, Response
 
-from controller.check_permis_controller import check_permis
+from controller.check_permis_controller import check_permis, get_exp_url
 import jsonpickle
 
 import re
@@ -23,11 +23,14 @@ from user_agents import parse
 config_env = dotenv_values(".env")
 
 
-def check_login(req):  # login by username and password
+async def check_login(req):  # login by username and password
     username = req.username
     password = req.password
     token = req.account_token
     hoscode = req.hoscode
+    thaid_id = req.thaid_id
+
+    print("tha_id: ", thaid_id)
 
     user_not_allow = ["admin", "root", "sa", "sysadmin", "sys", "system", "administrator", "superuser", "super", "adm",
                       "user", "test", "guest", "demo"]
@@ -67,7 +70,11 @@ def check_login(req):  # login by username and password
     payload = {}
     headers = {}
 
-    url = config_env["URL_EXP"] + "/user_authen/" + f"{hoscode}?user={username}&password={password}"
+    url_exp = get_exp_url(thaid_id)
+
+    print("url_exp: ", url_exp)
+
+    url = url_exp + "/query/user_authen/" + f"{hoscode}?user={username}&password={password}"
     print(url)
     response = requests.request("GET", url, headers=headers, data=payload)
 
