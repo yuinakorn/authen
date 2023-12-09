@@ -153,134 +153,132 @@ async def get_callback(code, state):
                                  port=int(config_env["DB_PORT"]),
                                  cursorclass=pymysql.cursors.DictCursor
                                  )
-    try:
-        if code.strip() and state.strip():
-            service_id = state.split("|")[0]
-            client_id = state.split("|")[1]
-            prov_code = state.split("|")[2]
-            hcode = state.split("|")[3]
 
-            # Set the time zone to Thailand
-            thailand_tz = pytz.timezone('Asia/Bangkok')
-            utc_now = datetime.now(pytz.utc)
-            created_date = utc_now.astimezone(thailand_tz)
+    if code.strip() and state.strip():
+        service_id = state.split("|")[0]
+        client_id = state.split("|")[1]
+        prov_code = state.split("|")[2]
+        hcode = state.split("|")[3]
 
-            # grant_type = config_env["GRANT_TYPE"]
+        # Set the time zone to Thailand
+        thailand_tz = pytz.timezone('Asia/Bangkok')
+        utc_now = datetime.now(pytz.utc)
+        created_date = utc_now.astimezone(thailand_tz)
 
-            with connection.cursor() as cursor:
-                sql = "SELECT * FROM service_api " \
-                      "INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id " \
-                      "WHERE service_id = %s"
-                cursor.execute(sql, service_id)
-                result = cursor.fetchone()
-                if result is None:
-                    return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
-                                    status_code=401,
-                                    media_type="application/json")
-                else:
-                    thaid_redirect_uri = result["callback_url"]
-                    thaid_client_id = result["client_id"]
-                    thaid_client_secret = result["client_secret"]
-                    print("thaid_redirect_uri: ", thaid_redirect_uri)
+        # grant_type = config_env["GRANT_TYPE"]
 
-                    # redirect_uri = config_env["REDIRECT_URI"]
-                    # auth_basic = config_env["AUTH_BASIC"]
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM service_api " \
+                  "INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id " \
+                  "WHERE service_id = %s"
+            cursor.execute(sql, service_id)
+            result = cursor.fetchone()
+            if result is None:
+                return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                                status_code=401,
+                                media_type="application/json")
+            else:
+                thaid_redirect_uri = result["callback_url"]
+                thaid_client_id = result["client_id"]
+                thaid_client_secret = result["client_secret"]
+                print("thaid_redirect_uri: ", thaid_redirect_uri)
 
-                    # make base64 with client_id and client_secret
-                    client_id_secret = thaid_client_id + ":" + thaid_client_secret
-                    print("client_id_secret: ", client_id_secret)
+                # redirect_uri = config_env["REDIRECT_URI"]
+                # auth_basic = config_env["AUTH_BASIC"]
 
-                    auth_basic_with_b = base64.b64encode(client_id_secret.encode("utf-8"))
-                    auth_basic = str(auth_basic_with_b).split("'")[1].split("'")[0]
+                # make base64 with client_id and client_secret
+                client_id_secret = thaid_client_id + ":" + thaid_client_secret
+                print("client_id_secret: ", client_id_secret)
 
-                    print("auth_basic: ", auth_basic)
+                auth_basic_with_b = base64.b64encode(client_id_secret.encode("utf-8"))
+                auth_basic = str(auth_basic_with_b).split("'")[1].split("'")[0]
 
-                    encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
+                print("auth_basic: ", auth_basic)
 
-                    payload = f"grant_type=authorization_code&code={code}&redirect_uri={encoded_url}"
+                encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
 
-                    headers = {
-                        'Content-Type': config_env["CONTENT_TYPE"],
-                        'Authorization': f'Basic {auth_basic}',
-                    }
+                payload = f"grant_type=authorization_code&code={code}&redirect_uri={encoded_url}"
 
-                    response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
+                headers = {
+                    'Content-Type': config_env["CONTENT_TYPE"],
+                    'Authorization': f'Basic {auth_basic}',
+                }
 
-                    print("response.text: ", response.text)
+                response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
 
-                    # API step 3 Check Active CID
-                    access_token = response.json()["access_token"]
+                print("response.text: ", response.text)
 
-                    payload2 = f"token=Bearer {access_token}"
+                # API step 3 Check Active CID
+                access_token = response.json()["access_token"]
 
-                    res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
+                payload2 = f"token=Bearer {access_token}"
 
-                    print("res_active.text: ", res_active.text)
+                res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
 
-                    if res_active.json()["active"] is True:
-                        # Check permission
-                        level = check_permis(prov_code, hcode, response.json()["pid"])
+                print("res_active.text: ", res_active.text)
 
-                        scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
-                                       response.json()[
-                                           "family_name"]
-                        # active = res_active.json()["active"]
-                        active = 1
-                        print("active: ", active)
+                if res_active.json()["active"] is True:
+                    # Check permission
+                    level = check_permis(prov_code, hcode, response.json()["pid"])
 
-                        with connection.cursor() as cursor:
-                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
+                    scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
+                                   response.json()[
+                                       "family_name"]
+                    # active = res_active.json()["active"]
+                    active = 1
+                    print("active: ", active)
+
+                    with connection.cursor() as cursor:
+                        sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
+                              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                        cursor.execute(sql,
+                                       (service_id, client_id, hcode, scope_return, state, level, active,
+                                        created_date))
+                        # how to print sql after execute
+
+                        print("cursor.rowcount: ", cursor.rowcount)
+
+                    # if inserted to return
+                    if cursor.rowcount == 1:
+                        # 1. insert to temporary table
+                        connection.commit()
+                        with connection.cursor() as cursor2:
+                            sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                            cursor.execute(sql,
-                                           (service_id, client_id, hcode, scope_return, state, level, active,
-                                            created_date))
-                            # how to print sql after execute
-
-                            print("cursor.rowcount: ", cursor.rowcount)
-
-                        # if inserted to return
-                        if cursor.rowcount == 1:
-                            # 1. insert to temporary table
+                            cursor2.execute(sql,
+                                            (
+                                                service_id, client_id, hcode, scope_return, state, level, active,
+                                                created_date))
+                            # 2. insert to log
                             connection.commit()
-                            with connection.cursor() as cursor2:
-                                sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                                      "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                                cursor2.execute(sql,
-                                                (
-                                                    service_id, client_id, hcode, scope_return, state, level, active,
-                                                    created_date))
-                                # 2. insert to log
-                                connection.commit()
 
-                            # return {"active": res_active.json()["active"], "detail": response.json()}
-                            print("service_id: ", service_id)
-                            if service_id == 1:
-                                print("กำลังดำเนินการ")
-                                return "กำลังดำเนินการ"
-                            elif service_id == 2:
-                                print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
-                                return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
-                            else:
-                                print("กำลังดำเนินการ โปรดรอสักครู่...")
-                                return "กำลังดำเนินการ โปรดรอสักครู่..."
-
+                        # return {"active": res_active.json()["active"], "detail": response.json()}
+                        print("service_id: ", service_id)
+                        print("type of service_id: ", type(service_id))
+                        if service_id == "1":
+                            print("กำลังดำเนินการ")
+                            return "กำลังดำเนินการ"
+                        elif service_id == "2":
+                            print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
+                            return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
                         else:
-                            return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
-                                            status_code=400,
-                                            media_type="application/json")
+                            print("กำลังดำเนินการ โปรดรอสักครู่...")
+                            return "กำลังดำเนินการ โปรดรอสักครู่..."
 
                     else:
-                        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, CID is not active."}),
-                                        status_code=401,
+                        return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
+                                        status_code=400,
                                         media_type="application/json")
 
-        else:
-            return Response(content=jsonpickle.encode({"detail": f"Invalid input. Code and state are required."}),
-                            status_code=400,
-                            media_type="application/json")
-    except Exception as e:
-        print(e)
-        return e
+                else:
+                    return Response(content=jsonpickle.encode({"detail": f"Unauthorized, CID is not active."}),
+                                    status_code=401,
+                                    media_type="application/json")
+
+    else:
+        return Response(content=jsonpickle.encode({"detail": f"Invalid input. Code and state are required."}),
+                        status_code=400,
+                        media_type="application/json")
 
 
 # def run_sync(coro_func):
