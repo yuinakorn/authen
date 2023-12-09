@@ -144,7 +144,7 @@ def get_generate_qrcode(request_token, state: str):
         return e
 
 
-def get_callback(code, state):
+async def get_callback(code, state):
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
                                  password=config_env["DB_PASSWORD"],
