@@ -234,8 +234,6 @@ def get_callback(code, state):
                                    (service_id, client_id, hcode, scope_return, state, level, active, created_date))
                     # how to print sql after execute
 
-                    print("sql: ", cursor._last_executed)
-
                     print("cursor.rowcount: ", cursor.rowcount)
 
                 # if inserted to return
@@ -253,6 +251,7 @@ def get_callback(code, state):
                         connection.commit()
 
                     # return {"active": res_active.json()["active"], "detail": response.json()}
+                    print("service_id: ", service_id)
                     if service_id == "2":
                         return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
                     else:
