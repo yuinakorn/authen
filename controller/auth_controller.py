@@ -206,7 +206,7 @@ async def get_callback(code, state):
 
                     response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
 
-                    print(response.text)
+                    print("response.text: ", response.text)
 
                     # API step 3 Check Active CID
                     access_token = response.json()["access_token"]
@@ -215,14 +215,15 @@ async def get_callback(code, state):
 
                     res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
 
-                    print(res_active.text)
+                    print("res_active.text: ", res_active.text)
 
                     if res_active.json()["active"] is True:
                         # Check permission
-                        level = check_permis(prov_code, hcode, response.json()["pid"])
+                        level = await check_permis(prov_code, hcode, response.json()["pid"])
 
-                        scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
-                            "family_name"]
+                        scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
+                                       response.json()[
+                                           "family_name"]
                         # active = res_active.json()["active"]
                         active = 1
                         print("active: ", active)
@@ -231,7 +232,8 @@ async def get_callback(code, state):
                             sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                             cursor.execute(sql,
-                                           (service_id, client_id, hcode, scope_return, state, level, active, created_date))
+                                           (service_id, client_id, hcode, scope_return, state, level, active,
+                                            created_date))
                             # how to print sql after execute
 
                             print("cursor.rowcount: ", cursor.rowcount)

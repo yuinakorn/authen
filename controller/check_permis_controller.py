@@ -17,7 +17,8 @@ def check_permis(prov_code, hcode, cid):
                                  )
     try:
         with connection.cursor() as cursor:
-            sql = f"SELECT url_exp FROM `province_list` WHERE `prov_code` = '{prov_code}'"
+            sql = f"SELECT url_exp FROM province_list WHERE prov_code = '{prov_code}'"
+            print("sql in check_permis: ", sql)
             cursor.execute(sql)
             result = cursor.fetchone()
             if result is None:
@@ -29,7 +30,7 @@ def check_permis(prov_code, hcode, cid):
 
                 response = requests.request("GET", url, headers={}, data={})
 
-                print(response.text)
+                print("res position from exp: ", response.text)
                 data = response.json()
                 # get data from json file
                 with open('position.json', 'r') as file:
@@ -47,11 +48,11 @@ def check_permis(prov_code, hcode, cid):
                                       item["position"] and isinstance(item["position"], str) and
                                       any(pos in item["position"] for pos in position_allow)]
                 result = 1 if len(matching_positions) > 0 else 0
+                print("result in check_permis: ", result)
 
                 return result
 
     except Exception as e:
         print(e)
         return 0
-    finally:
-        connection.close()
+
