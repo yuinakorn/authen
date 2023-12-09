@@ -219,7 +219,7 @@ async def get_callback(code, state):
 
                     if res_active.json()["active"] is True:
                         # Check permission
-                        level = await check_permis(prov_code, hcode, response.json()["pid"])
+                        level = check_permis(prov_code, hcode, response.json()["pid"])
 
                         scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
                                        response.json()[
