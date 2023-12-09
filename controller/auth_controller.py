@@ -40,9 +40,12 @@ def check_login(req):  # login by username and password
         # pass  # just test
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
-        if len(password) < 3 or len(username) < 2:
+        length_password = 6
+        length_username = 2
+
+        if len(password) < length_password or len(username) < length_username:
             return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
-                                                       "detail": f"Username ต้องยาวกว่า 2 ตัวอักษร, Password ต้องยาว 8 ตัวอักษรขึ้นไป"}),
+                                                       "detail": f"Username ต้องยาวกว่า {length_username} ตัวอักษร, Password ต้องยาว {length_password} ตัวอักษรขึ้นไป"}),
                             status_code=200,
                             media_type="application/json")
         elif username in user_not_allow:
@@ -52,12 +55,12 @@ def check_login(req):  # login by username and password
                 status_code=200,
                 media_type="application/json")
 
-        # elif not re.search(pattern, password):
-        #     return Response(content=jsonpickle.encode(
-        #         {"status": "error", "http_status": "400", "error": "3",
-        #          "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
-        #         status_code=200,
-        #         media_type="application/json")
+        elif not re.search(pattern, password):
+            return Response(content=jsonpickle.encode(
+                {"status": "error", "http_status": "400", "error": "3",
+                 "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
+                status_code=200,
+                media_type="application/json")
         else:
             pass
 
