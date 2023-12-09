@@ -183,88 +183,94 @@ def get_callback(code, state):
                     thaid_client_secret = result["client_secret"]
                     print("thaid_redirect_uri: ", thaid_redirect_uri)
 
-            # redirect_uri = config_env["REDIRECT_URI"]
-            # auth_basic = config_env["AUTH_BASIC"]
+                    # redirect_uri = config_env["REDIRECT_URI"]
+                    # auth_basic = config_env["AUTH_BASIC"]
 
-            # make base64 with client_id and client_secret
-            client_id_secret = thaid_client_id + ":" + thaid_client_secret
-            print("client_id_secret: ", client_id_secret)
+                    # make base64 with client_id and client_secret
+                    client_id_secret = thaid_client_id + ":" + thaid_client_secret
+                    print("client_id_secret: ", client_id_secret)
 
-            auth_basic_with_b = base64.b64encode(client_id_secret.encode("utf-8"))
-            auth_basic = str(auth_basic_with_b).split("'")[1].split("'")[0]
+                    auth_basic_with_b = base64.b64encode(client_id_secret.encode("utf-8"))
+                    auth_basic = str(auth_basic_with_b).split("'")[1].split("'")[0]
 
-            print("auth_basic: ", auth_basic)
+                    print("auth_basic: ", auth_basic)
 
-            encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
+                    encoded_url = urllib.parse.quote(thaid_redirect_uri, safe="")
 
-            payload = f"grant_type=authorization_code&code={code}&redirect_uri={encoded_url}"
+                    payload = f"grant_type=authorization_code&code={code}&redirect_uri={encoded_url}"
 
-            headers = {
-                'Content-Type': config_env["CONTENT_TYPE"],
-                'Authorization': f'Basic {auth_basic}',
-            }
+                    headers = {
+                        'Content-Type': config_env["CONTENT_TYPE"],
+                        'Authorization': f'Basic {auth_basic}',
+                    }
 
-            response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
+                    response = requests.request("POST", config_env["URL_TOKEN"], headers=headers, data=payload)
 
-            print(response.text)
+                    print(response.text)
 
-            # API step 3 Check Active CID
-            access_token = response.json()["access_token"]
+                    # API step 3 Check Active CID
+                    access_token = response.json()["access_token"]
 
-            payload2 = f"token=Bearer {access_token}"
+                    payload2 = f"token=Bearer {access_token}"
 
-            res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
+                    res_active = requests.request("POST", config_env["URL_ACTIVE"], headers=headers, data=payload2)
 
-            print(res_active.text)
+                    print(res_active.text)
 
-            if res_active.json()["active"] is True:
-                # Check permission
-                level = check_permis(prov_code, hcode, response.json()["pid"])
+                    if res_active.json()["active"] is True:
+                        # Check permission
+                        level = check_permis(prov_code, hcode, response.json()["pid"])
 
-                scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
-                    "family_name"]
-                # active = res_active.json()["active"]
-                active = 1
-                print("active: ", active)
+                        scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
+                            "family_name"]
+                        # active = res_active.json()["active"]
+                        active = 1
+                        print("active: ", active)
 
-                with connection.cursor() as cursor:
-                    sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                    cursor.execute(sql,
-                                   (service_id, client_id, hcode, scope_return, state, level, active, created_date))
-                    # how to print sql after execute
+                        with connection.cursor() as cursor:
+                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
+                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                            cursor.execute(sql,
+                                           (service_id, client_id, hcode, scope_return, state, level, active, created_date))
+                            # how to print sql after execute
 
-                    print("cursor.rowcount: ", cursor.rowcount)
+                            print("cursor.rowcount: ", cursor.rowcount)
 
-                # if inserted to return
-                if cursor.rowcount == 1:
-                    # 1. insert to temporary table
-                    connection.commit()
-                    with connection.cursor() as cursor2:
-                        sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                              "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                        cursor2.execute(sql,
-                                        (
-                                            service_id, client_id, hcode, scope_return, state, level, active,
-                                            created_date))
-                        # 2. insert to log
-                        connection.commit()
+                        # if inserted to return
+                        if cursor.rowcount == 1:
+                            # 1. insert to temporary table
+                            connection.commit()
+                            with connection.cursor() as cursor2:
+                                sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
+                                      "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                                cursor2.execute(sql,
+                                                (
+                                                    service_id, client_id, hcode, scope_return, state, level, active,
+                                                    created_date))
+                                # 2. insert to log
+                                connection.commit()
 
-                    # return {"active": res_active.json()["active"], "detail": response.json()}
-                    print("service_id: ", service_id)
-                    if service_id == "2":
-                        return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
+                            # return {"active": res_active.json()["active"], "detail": response.json()}
+                            print("service_id: ", service_id)
+                            if service_id == 1:
+                                print("กำลังดำเนินการ")
+                                return "กำลังดำเนินการ"
+                            elif service_id == 2:
+                                print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
+                                return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
+                            else:
+                                print("กำลังดำเนินการ โปรดรอสักครู่...")
+                                return "กำลังดำเนินการ โปรดรอสักครู่..."
+
+                        else:
+                            return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
+                                            status_code=400,
+                                            media_type="application/json")
+
                     else:
-                        return "กำลังดำเนินการ"
-                else:
-                    return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),
-                                    status_code=400,
-                                    media_type="application/json")
-
-            else:
-                return Response(content=jsonpickle.encode({"detail": f"Unauthorized, CID is not active."}),
-                                status_code=401,
-                                media_type="application/json")
+                        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, CID is not active."}),
+                                        status_code=401,
+                                        media_type="application/json")
 
         else:
             return Response(content=jsonpickle.encode({"detail": f"Invalid input. Code and state are required."}),
