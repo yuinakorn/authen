@@ -184,7 +184,6 @@ def get_callback(code, state):
                     print("thaid_redirect_uri: ", thaid_redirect_uri)
 
             # redirect_uri = config_env["REDIRECT_URI"]
-
             # auth_basic = config_env["AUTH_BASIC"]
 
             # make base64 with client_id and client_secret
@@ -225,12 +224,17 @@ def get_callback(code, state):
                 scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
                     "family_name"]
                 active = res_active.json()["active"]
+                print("active: ", active)
 
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                     cursor.execute(sql,
                                    (service_id, client_id, hcode, scope_return, state, level, active, created_date))
+                    # how to print sql after execute
+                    print(cursor._last_executed)  # print sql
+                    print("cursor.rowcount: ", cursor.rowcount)
+
                 # if inserted to return
                 if cursor.rowcount == 1:
                     # 1. insert to temporary table
