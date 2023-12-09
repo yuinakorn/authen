@@ -223,7 +223,8 @@ def get_callback(code, state):
 
                 scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + response.json()[
                     "family_name"]
-                active = res_active.json()["active"]
+                # active = res_active.json()["active"]
+                active = 1
                 print("active: ", active)
 
                 with connection.cursor() as cursor:
@@ -232,7 +233,9 @@ def get_callback(code, state):
                     cursor.execute(sql,
                                    (service_id, client_id, hcode, scope_return, state, level, active, created_date))
                     # how to print sql after execute
-                    print(cursor._last_executed)  # print sql
+
+                    print("sql: ", cursor._last_executed)
+
                     print("cursor.rowcount: ", cursor.rowcount)
 
                 # if inserted to return
