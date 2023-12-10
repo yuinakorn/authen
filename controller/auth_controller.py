@@ -23,7 +23,7 @@ from user_agents import parse
 config_env = dotenv_values(".env")
 
 
-async def check_login(req):  # login by username and password
+def check_login(req):  # login by username and password
     username = req.username
     password = req.password
     token = req.account_token
@@ -43,7 +43,7 @@ async def check_login(req):  # login by username and password
         # pass  # just test
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
-        length_password = 6
+        length_password = 8
         length_username = 2
 
         if len(password) < length_password or len(username) < length_username:
@@ -153,7 +153,7 @@ def get_generate_qrcode(request_token, state: str):
 
 def get_callback(code, state):
     try:
-        print("\nstart get_callback\n")
+        print("\nstart get_callback")
         connection = pymysql.connect(host=config_env["DB_HOST"],
                                      user=config_env["DB_USER"],
                                      password=config_env["DB_PASSWORD"],
