@@ -75,7 +75,7 @@ def check_login(req):  # login by username and password
     print("url_exp: ", url_exp)
 
     url = url_exp + "/query/user_authen/" + f"{hoscode}?user={username}&password={password}"
-    print(url)
+    print("url_exp: " + url)
     response = requests.request("GET", url, headers=headers, data=payload)
 
     with open('position.json', 'r') as file:
@@ -85,9 +85,22 @@ def check_login(req):  # login by username and password
 
     data = response.json()
 
+    # how to short if     if data[0]["entryposition"]:
+    #         position = data[0]["entryposition"]
+    #     else:
+    #         position = data[0]["position"]
+
+    position = data[0]["entryposition"] if data[0]["entryposition"] else data[0]["position"]
+
+
+    # matching_positions = [item for item in data if
+    #                       item["entryposition"] and isinstance(item["entryposition"], str) and
+    #                       any(pos in item["entryposition"] for pos in position_allow)]
+    # result = 1 if len(matching_positions) > 0 else 0
+
     matching_positions = [item for item in data if
-                          item["entryposition"] and isinstance(item["entryposition"], str) and
-                          any(pos in item["entryposition"] for pos in position_allow)]
+                          position and isinstance(position, str) and
+                          any(pos in position for pos in position_allow)]
     result = 1 if len(matching_positions) > 0 else 0
 
     if result == 1:
