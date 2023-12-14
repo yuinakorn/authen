@@ -85,13 +85,12 @@ def check_login(req):  # login by username and password
 
     data = response.json()
 
-    # how to short if     if data[0]["entryposition"]:
-    #         position = data[0]["entryposition"]
-    #     else:
-    #         position = data[0]["position"]
+    # if data[0]["entryposition"]:
+    #     position = data[0]["entryposition"]
+    # else:
+    #     position = data[0]["position"]
 
-    position = data[0]["entryposition"] if data[0]["entryposition"] else data[0]["position"]
-
+    position = data[0].get("entryposition", data[0].get("position"))
 
     # matching_positions = [item for item in data if
     #                       item["entryposition"] and isinstance(item["entryposition"], str) and
