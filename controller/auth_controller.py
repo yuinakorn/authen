@@ -22,21 +22,23 @@ import re
 
 from user_agents import parse
 
-# config_env = dotenv_values(".env")
-# app = FastAPI()
-# origins = [
-#     config_env["CORS_ORIGIN1"],
-#     config_env["CORS_ORIGIN2"],
-#     config_env["CORS_ORIGIN3"]
-# ]
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app = FastAPI()
 
+config_env = dotenv_values(".env")
+
+origins = [
+    config_env["CORS_ORIGIN1"],
+    config_env["CORS_ORIGIN2"],
+    config_env["CORS_ORIGIN3"]
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def check_login(req):  # login by username and password
     username = req.username
