@@ -40,6 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def check_login(req):  # login by username and password
     username = req.username
     password = req.password
@@ -66,7 +67,8 @@ def check_login(req):  # login by username and password
 
         if len(password) < length_password or len(username) < length_username:
             return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
-                                                       "detail": f"Username ต้องยาวกว่า {length_username} ตัวอักษร, Password ต้องยาว {length_password} ตัวอักษรขึ้นไป"}),
+                                                       "detail": f"โปรดตั้งรหัสผ่านให้ปลอดภัย"}),
+                            # "detail": f"Username ต้องยาวกว่า {length_username} ตัวอักษร, Password ต้องยาว {length_password} ตัวอักษรขึ้นไป"}),
                             status_code=200,
                             media_type="application/json")
         elif username in user_not_allow:
@@ -122,6 +124,7 @@ def check_login(req):  # login by username and password
             "login_type": req.login_type
         }
         result_log = create_login_log(data)
+        print("result_log: ", result_log)
         return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "4",
                                                    "detail": f"Unauthorized, username or password is invalid."}),
                         status_code=200,
