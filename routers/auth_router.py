@@ -2,8 +2,8 @@ from dotenv import dotenv_values
 from fastapi import APIRouter, Request, FastAPI
 
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
-    get_province, get_hosname, get_script_provider, get_province_code, get_client, get_active_by_client_id, post_version
-from models.auth_model import AuthBase, ViewerBase, RegBase
+    get_province, get_hosname, get_script_provider, get_province_code, post_log, get_active_by_client_id, post_version
+from models.auth_model import AuthBase, ViewerBase, RegBase, LogBase
 import controller.auth_controller as auth_controller
 
 
@@ -47,6 +47,11 @@ async def check_active_by_client_id(request_token: AuthBase, client_id: str = No
 @router.post("/viewer/")
 async def get_token_for_viewer(request_viewer: ViewerBase):
     return get_token_viewer(request_viewer)
+
+
+@router.post("/viewer_log/")
+async def create_log(request_log: LogBase):
+    return post_log(request_log)
 
 
 router2 = APIRouter(tags=["lookup table"])

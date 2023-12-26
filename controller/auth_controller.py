@@ -9,8 +9,8 @@ import pymysql.cursors
 import pytz
 import requests
 from dotenv import dotenv_values
-from fastapi import HTTPException, FastAPI
-from starlette.middleware.cors import CORSMiddleware
+# from fastapi import HTTPException, FastAPI
+# from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse, Response
 
 from controller.check_permis_controller import check_permis, get_exp_url
@@ -19,6 +19,8 @@ import jsonpickle
 import re
 
 from user_agents import parse
+
+from models.auth_model import RegBase
 
 config_env = dotenv_values(".env")
 
@@ -30,7 +32,7 @@ def check_login(req):  # login by username and password
     hoscode = req.hoscode
     thaid_id = req.thaid_id
 
-    print("tha_id: ", thaid_id)
+    # print("tha_id: ", thaid_id)
 
     user_not_allow = ["admin", "root", "sa", "sysadmin", "sys", "system", "administrator", "superuser", "super", "adm",
                       "user", "test", "guest", "demo"]
@@ -43,6 +45,7 @@ def check_login(req):  # login by username and password
         # pass  # just test
         # check password is secure or not with regex pattern 8 digit, 1 uppercase, 1 lowercase, 1 special character
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]"
+
         length_password = 8
         length_username = 2
 
@@ -102,6 +105,10 @@ def check_login(req):  # login by username and password
                           any(pos in position for pos in position_allow)]
     result = 1 if len(matching_positions) > 0 else 0
 
+    # insert to log here
+    result_log = create_login_log(req)
+    print("result_log: ", result_log)
+
     if result == 1:
         return {"status": "success", "result": result, "detail": response.json()}
     else:
@@ -109,6 +116,31 @@ def check_login(req):  # login by username and password
                                                    "detail": f"Unauthorized, username or password or position is invalid."}),
                         status_code=200,
                         media_type="application/json")
+
+
+def create_login_log(data_insert: RegBase):
+    try:
+        connection = pymysql.connect(host=config_env["DB_HOST"],
+                                     user=config_env["DB_USER"],
+                                     password=config_env["DB_PASSWORD"],
+                                     db=config_env["DB_NAME"],
+                                     charset=config_env["DB_CHARSET"],
+                                     port=int(config_env["DB_PORT"]),
+                                     cursorclass=pymysql.cursors.DictCursor
+                                     )
+
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO viewer_login_logs (account_token,hoscode,username,thaid_id,ip,datetime) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (data_insert.account_token, data_insert.hoscode, data_insert.username,
+                                 data_insert.thaid_id, data_insert.ip, data_insert.datetime,
+                                 ))
+            connection.commit()
+            return True
+
+    except Exception as e:
+        print(e)
+        return False
 
 
 def get_public_ip():
@@ -502,6 +534,46 @@ def get_token_viewer(request_viewer):
         return e
 
 
+def post_log(request_log):
+    token = request_log.account_token
+    is_token = check_account_token(token)
+    if is_token["result"] == 0:
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
+    else:
+        connection = pymysql.connect(host=config_env["DB_HOST"],
+                                     user=config_env["DB_USER"],
+                                     password=config_env["DB_PASSWORD"],
+                                     db=config_env["DB_NAME"],
+                                     charset=config_env["DB_CHARSET"],
+                                     port=int(config_env["DB_PORT"]),
+                                     cursorclass=pymysql.cursors.DictCursor
+                                     )
+
+        try:
+            with connection.cursor() as cursor:
+                sql = "INSERT INTO viewer_logs (account_token,hoscode,cid,patient_cid,patient_hoscode,ip,datetime) " \
+                      "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, (request_log.account_token, request_log.hosCode, request_log.cid,
+                                     request_log.patientCid, request_log.patientHosCode, request_log.ip,
+                                     request_log.datetime))
+                connection.commit()
+                # return True
+                return {"status": "success", "detail": {
+                    "hoscode": request_log.hosCode,
+                    "cid": request_log.cid,
+                    "patient_cid": request_log.patientCid,
+                    "patient_hoscode": request_log.patientHosCode,
+                    "ip": request_log.ip,
+                    "datetime": request_log.datetime
+                }}
+
+        except Exception as e:
+            print(e)
+            return e
+
+
 def get_province(request_token):
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
@@ -511,6 +583,7 @@ def get_province(request_token):
                                  port=int(config_env["DB_PORT"]),
                                  cursorclass=pymysql.cursors.DictCursor
                                  )
+
     try:
         with connection.cursor() as cursor:
             sql = "SELECT * FROM service_api  WHERE account_token = %s"
@@ -548,8 +621,9 @@ def get_hosname(hoscode):
                                  )
     try:
         with connection.cursor() as cursor:
-            sql = ("SELECT hoscode, REPLACE(hosname,'โรงพยาบาลส่งเสริมสุขภาพตำบล','รพ.สต.') hosname FROM chospital WHERE hoscode = %s "
-                   " AND provcode in ('50','51','58') LIMIT 1")
+            sql = (
+                "SELECT hoscode, REPLACE(hosname,'โรงพยาบาลส่งเสริมสุขภาพตำบล','รพ.สต.') hosname FROM chospital WHERE hoscode = %s "
+                " AND provcode in ('50','51','58') LIMIT 1")
             cursor.execute(sql, hoscode)
             result = cursor.fetchone()
 
