@@ -20,8 +20,6 @@ import re
 
 from user_agents import parse
 
-from models.auth_model import RegBase
-
 config_env = dotenv_values(".env")
 
 
@@ -93,7 +91,27 @@ def check_login(req):  # login by username and password
     # else:
     #     position = data[0]["position"]
 
-    position = data[0].get("entryposition", data[0].get("position"))
+    if not data:
+        data = {
+            "account_token": token,
+            "hoscode": hoscode,
+            "username": username,
+            "cid": None,
+            "position": None,
+            "thaid_id": thaid_id,
+            "ip": req.ip,
+            "datetime": req.datetime,
+            "status": "fail",
+            "login_type": req.login_type
+        }
+        result_log = create_login_log(data)
+        return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "4",
+                                                   "detail": f"Unauthorized, username or password is invalid."}),
+                        status_code=200,
+                        media_type="application/json")
+    else:
+        position = data[0].get("entryposition", data[0].get("position"))
+        pass
 
     # matching_positions = [item for item in data if
     #                       item["entryposition"] and isinstance(item["entryposition"], str) and
@@ -110,6 +128,8 @@ def check_login(req):  # login by username and password
             "account_token": token,
             "hoscode": hoscode,
             "username": username,
+            "cid": data[0]["cid"],
+            "position": position,
             "thaid_id": thaid_id,
             "ip": req.ip,
             "datetime": req.datetime,
@@ -120,10 +140,13 @@ def check_login(req):  # login by username and password
         print("result_log: ", result_log)
         return {"status": "success", "result": result, "detail": response.json()}
     else:
+        cidd = data[0]["cid"] if data[0]["cid"] else "0"
         data = {
             "account_token": token,
             "hoscode": hoscode,
             "username": username,
+            "cid": cidd,
+            "position": position,
             "thaid_id": thaid_id,
             "ip": req.ip,
             "datetime": req.datetime,
@@ -151,12 +174,12 @@ def create_login_log(data_insert: dict):
                                      )
 
         with connection.cursor() as cursor:
-            sql = "INSERT INTO viewer_login_logs (account_token,hoscode,username,thaid_id,ip,datetime,status,login_type) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO viewer_login_logs (account_token,hoscode,username,cid,position,thaid_id,ip,datetime,status,login_type) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(sql, (data_insert["account_token"], data_insert["hoscode"], data_insert["username"],
-                                 data_insert["thaid_id"], data_insert["ip"], data_insert["datetime"],
-                                 data_insert["status"],
-                                 data_insert["login_type"]))
+                                 data_insert["cid"], data_insert["position"], data_insert["thaid_id"],
+                                 data_insert["ip"], data_insert["datetime"],
+                                 data_insert["status"], data_insert["login_type"]))
 
             connection.commit()
         return True
