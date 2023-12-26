@@ -67,7 +67,7 @@ def check_login(req):  # login by username and password
 
         if len(password) < length_password or len(username) < length_username:
             return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
-                                                       "detail": f"โปรดตั้งรหัสผ่านให้ปลอดภัย"}),
+                                                       "detail": f"โปรดตั้ง user และ password ให้ปลอดภัย"}),
                             # "detail": f"Username ต้องยาวกว่า {length_username} ตัวอักษร, Password ต้องยาว {length_password} ตัวอักษรขึ้นไป"}),
                             status_code=200,
                             media_type="application/json")
