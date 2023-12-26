@@ -13,6 +13,7 @@ class RegBase(BaseModel):
     thaid_id: int
     datetime: str
     ip: str
+    login_type: str
 
 
 class ViewerBase(BaseModel):

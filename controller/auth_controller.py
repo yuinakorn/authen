@@ -64,7 +64,9 @@ def check_login(req):  # login by username and password
         elif not re.search(pattern, password):
             return Response(content=jsonpickle.encode(
                 {"status": "error", "http_status": "400", "error": "3",
-                 "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
+                 "detail": f"โปรดตั้ง Password ให้ปลอดภัย"}),
+                # {"status": "error", "http_status": "400", "error": "3",
+                #  "detail": f"Password ต้องมีอย่างน้อย 1 ตัวอักษรพิมพ์เล็ก, 1 ตัวอักษรพิมพ์ใหญ่, 1 ตัวเลข, 1 ตัวอักษรพิเศษ"}),
                 status_code=200,
                 media_type="application/json")
         else:
@@ -74,8 +76,6 @@ def check_login(req):  # login by username and password
     headers = {}
 
     url_exp = get_exp_url(thaid_id)
-
-    print("url_exp: ", url_exp)
 
     url = url_exp + "/query/user_authen/" + f"{hoscode}?user={username}&password={password}"
     print("url_exp: " + url)
@@ -105,20 +105,41 @@ def check_login(req):  # login by username and password
                           any(pos in position for pos in position_allow)]
     result = 1 if len(matching_positions) > 0 else 0
 
-    # insert to log here
-    result_log = create_login_log(req)
-    print("result_log: ", result_log)
-
     if result == 1:
+        data = {
+            "account_token": token,
+            "hoscode": hoscode,
+            "username": username,
+            "thaid_id": thaid_id,
+            "ip": req.ip,
+            "datetime": req.datetime,
+            "status": "success",
+            "login_type": req.login_type
+        }
+        result_log = create_login_log(data)
+        print("result_log: ", result_log)
         return {"status": "success", "result": result, "detail": response.json()}
     else:
+        data = {
+            "account_token": token,
+            "hoscode": hoscode,
+            "username": username,
+            "thaid_id": thaid_id,
+            "ip": req.ip,
+            "datetime": req.datetime,
+            "status": "fail",
+            "login_type": req.login_type
+        }
+        result_log = create_login_log(data)
+        print("result_log: ", result_log)
+        # return 200 because for App can not read 401
         return Response(content=jsonpickle.encode({"status": "error", "http_status": "401", "error": "4",
                                                    "detail": f"Unauthorized, username or password or position is invalid."}),
                         status_code=200,
                         media_type="application/json")
 
 
-def create_login_log(data_insert: RegBase):
+def create_login_log(data_insert: dict):
     try:
         connection = pymysql.connect(host=config_env["DB_HOST"],
                                      user=config_env["DB_USER"],
@@ -130,13 +151,15 @@ def create_login_log(data_insert: RegBase):
                                      )
 
         with connection.cursor() as cursor:
-            sql = "INSERT INTO viewer_login_logs (account_token,hoscode,username,thaid_id,ip,datetime) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, (data_insert.account_token, data_insert.hoscode, data_insert.username,
-                                 data_insert.thaid_id, data_insert.ip, data_insert.datetime,
-                                 ))
+            sql = "INSERT INTO viewer_login_logs (account_token,hoscode,username,thaid_id,ip,datetime,status,login_type) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (data_insert["account_token"], data_insert["hoscode"], data_insert["username"],
+                                 data_insert["thaid_id"], data_insert["ip"], data_insert["datetime"],
+                                 data_insert["status"],
+                                 data_insert["login_type"]))
+
             connection.commit()
-            return True
+        return True
 
     except Exception as e:
         print(e)
