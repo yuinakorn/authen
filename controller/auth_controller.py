@@ -593,7 +593,9 @@ def get_token_viewer(request_viewer):
                 access_token_expires = timedelta(minutes=30)  # Token expiration time
                 access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
                 # create datetime now yyyy-mm-dd hh:mm:ss
-                curdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                cur = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # timezone = pytz.timezone("Asia/Bangkok")
+                curdate = datetime.now(pytz.timezone("Asia/Bangkok")).strftime("%Y-%m-%d %H:%M:%S")
                 with connection.cursor() as cursor:
                     sql = "INSERT INTO viewer_logs (token,hoscode,cid,patient_cid,patient_hoscode,ip,datetime) " \
                           "VALUES (%s, %s, %s, %s, %s, %s, %s)"
