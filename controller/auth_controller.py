@@ -592,6 +592,16 @@ def get_token_viewer(request_viewer):
             else:
                 access_token_expires = timedelta(minutes=30)  # Token expiration time
                 access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
+                # create datetime now yyyy-mm-dd hh:mm:ss
+                curdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                with connection.cursor() as cursor:
+                    sql = "INSERT INTO viewer_logs (token,hoscode,cid,patient_cid,patient_hoscode,ip,datetime) " \
+                          "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(sql, (access_token, request_viewer.hosCode, request_viewer.cid,
+                                         request_viewer.patientCid, request_viewer.patientHosCode, request_viewer.ip,
+                                         curdate))
+                    connection.commit()
+                    print("insert log viewer success")
                 return {"access_token": access_token}
                 # return create_jwt_token(request_viewer)
 

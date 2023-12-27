@@ -22,6 +22,7 @@ class ViewerBase(BaseModel):
     cid: str
     patientCid: str
     patientHosCode: str
+    ip: str
 
 
 class LogBase(BaseModel):
