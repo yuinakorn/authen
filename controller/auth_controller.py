@@ -67,7 +67,7 @@ def check_login(req):  # login by username and password
 
         if len(password) < length_password or len(username) < length_username:
             return Response(content=jsonpickle.encode({"status": "error", "http_status": "400", "error": "1",
-                                                       "detail": f"โปรดตั้ง user และ password ให้ปลอดภัย"}),
+                                                       "detail": f"โปรดตั้ง username และ password ให้ปลอดภัย"}),
                             # "detail": f"Username ต้องยาวกว่า {length_username} ตัวอักษร, Password ต้องยาว {length_password} ตัวอักษรขึ้นไป"}),
                             status_code=200,
                             media_type="application/json")
@@ -601,13 +601,7 @@ def get_token_viewer(request_viewer):
 
 
 def post_log(request_log):
-    token = request_log.account_token
-    is_token = check_account_token(token)
-    if is_token["result"] == 0:
-        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
-                        status_code=401,
-                        media_type="application/json")
-    else:
+    try:
         connection = pymysql.connect(host=config_env["DB_HOST"],
                                      user=config_env["DB_USER"],
                                      password=config_env["DB_PASSWORD"],
@@ -616,28 +610,26 @@ def post_log(request_log):
                                      port=int(config_env["DB_PORT"]),
                                      cursorclass=pymysql.cursors.DictCursor
                                      )
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO viewer_logs (token,hoscode,cid,patient_cid,patient_hoscode,ip,datetime) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (request_log.token, request_log.hosCode, request_log.cid,
+                                 request_log.patientCid, request_log.patientHosCode, request_log.ip,
+                                 request_log.datetime))
+            connection.commit()
+            # return True
+            return {"status": "success", "detail": {
+                "hoscode": request_log.hosCode,
+                "cid": request_log.cid,
+                "patient_cid": request_log.patientCid,
+                "patient_hoscode": request_log.patientHosCode,
+                "ip": request_log.ip,
+                "datetime": request_log.datetime
+            }}
 
-        try:
-            with connection.cursor() as cursor:
-                sql = "INSERT INTO viewer_logs (account_token,hoscode,cid,patient_cid,patient_hoscode,ip,datetime) " \
-                      "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, (request_log.account_token, request_log.hosCode, request_log.cid,
-                                     request_log.patientCid, request_log.patientHosCode, request_log.ip,
-                                     request_log.datetime))
-                connection.commit()
-                # return True
-                return {"status": "success", "detail": {
-                    "hoscode": request_log.hosCode,
-                    "cid": request_log.cid,
-                    "patient_cid": request_log.patientCid,
-                    "patient_hoscode": request_log.patientHosCode,
-                    "ip": request_log.ip,
-                    "datetime": request_log.datetime
-                }}
-
-        except Exception as e:
-            print(e)
-            return e
+    except Exception as e:
+        print(e)
+        return e
 
 
 def get_province(request_token):

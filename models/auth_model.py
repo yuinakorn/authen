@@ -25,7 +25,7 @@ class ViewerBase(BaseModel):
 
 
 class LogBase(BaseModel):
-    account_token: str
+    token: str
     hosCode: str
     cid: str
     patientCid: str
