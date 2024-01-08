@@ -49,6 +49,19 @@ def check_login(req):  # login by username and password
     thaid_id = req.thaid_id
 
     if thaid_id is None or thaid_id == 0:
+        data = {
+            "account_token": token,
+            "hoscode": hoscode,
+            "username": username,
+            "cid": None,
+            "position": None,
+            "thaid_id": thaid_id,
+            "ip": req.ip,
+            "datetime": req.datetime,
+            "status": "fail",
+            "login_type": req.login_type
+        }
+        create_login_log(data)
         return Response(content=jsonpickle.encode({"detail": f"Unauthorized, thaid_id is invalid."}),
                         status_code=401,
                         media_type="application/json")
