@@ -62,7 +62,9 @@ def check_login(req):  # login by username and password
             "login_type": req.login_type
         }
         create_login_log(data)
-        raise JSONResponse(content={"detail": f"Unauthorized, thaid_id is invalid."}, status_code=401)
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, thaid_id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
 
     # print("tha_id: ", thaid_id)
 
