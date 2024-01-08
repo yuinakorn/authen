@@ -48,6 +48,11 @@ def check_login(req):  # login by username and password
     hoscode = req.hoscode
     thaid_id = req.thaid_id
 
+    if thaid_id is None or thaid_id == 0:
+        return Response(content=jsonpickle.encode({"detail": f"Unauthorized, thaid_id is invalid."}),
+                        status_code=401,
+                        media_type="application/json")
+
     # print("tha_id: ", thaid_id)
 
     user_not_allow = ["admin", "root", "sa", "sysadmin", "sys", "system", "administrator", "superuser", "super", "adm",
