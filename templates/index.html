@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
     <title>ThaiD | ยืนยันตัวตน</title>
     <style>
         body {
@@ -12,6 +15,7 @@
             justify-content: center;
             /*align-items: center;*/
             height: 100vh;
+            font-family: "Noto Sans Thai", sans-serif;
         }
 
         .container {
@@ -28,7 +32,7 @@
         .spinner {
             width: 11.2px;
             height: 11.2px;
-            animation: spinner-o824ag 1.2s infinite linear;
+            animation: spinner-o824ag 1.5s infinite linear;
             position: relative;
             margin: 0 auto;
         }
@@ -78,7 +82,7 @@
 <body>
 <div class="container">
     <div class="text-center">
-        <h3 id="message">กรุณารอสักครู่ กำลังดำเนินการ...</h3>
+        <h2 id="message">กรุณารอสักครู่ กำลังดำเนินการ...</h2>
         <div class="spinner" id="spinner" style="margin-top: 5rem">
             <div></div>
             <div></div>
@@ -100,14 +104,14 @@
 
     let time2 = 30;
     let interval2 = setInterval(() => {
-            time2--;
-            if (time2 === 0) {
-                clearInterval(interval2);
-                document.getElementById('message').textContent = "อาจมีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!";
-                let spinner = document.getElementById('spinner');
-                spinner.parentNode.removeChild(spinner);
-            }
-        }, 1000);
+        time2--;
+        if (time2 === 0) {
+            clearInterval(interval2);
+            document.getElementById('message').textContent = "อาจมีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!";
+            let spinner = document.getElementById('spinner');
+            spinner.parentNode.removeChild(spinner);
+        }
+    }, 1000);
 
 </script>
 </body>
