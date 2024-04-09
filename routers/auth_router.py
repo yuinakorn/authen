@@ -6,6 +6,7 @@ from controller.auth_controller import get_generate_qrcode, get_callback, get_ac
 from models.auth_model import AuthBase, ViewerBase, RegBase, LogBase
 import controller.auth_controller as auth_controller
 
+from fastapi.responses import HTMLResponse
 
 router = APIRouter(tags=["authentication"])
 config_env = dotenv_values(".env")
@@ -29,7 +30,7 @@ async def generate_qrcode(request_token: AuthBase, state: str = None):
     return get_generate_qrcode(request_token, state)
 
 
-@router.get("/callback/")
+@router.get("/callback/", response_class=HTMLResponse)
 async def callback(code: str = None, state: str = None):
     return get_callback(code, state)
 

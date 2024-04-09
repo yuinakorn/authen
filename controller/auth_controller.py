@@ -405,10 +405,11 @@ def get_callback(code, state):
                                 return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
                             else:
                                 # print("กำลังดำเนินการ โปรดรอสักครู่...")
-                                return "กำลังดำเนินการ โปรดรอสักครู่..."
-                                # msg = "กำลังดำเนินการ โปรดรอสักครู่..."
+
+                                msg = "กำลังดำเนินการ โปรดรอสักครู่..."
+                                # return msg
                                 # return with template
-                                # return templates.TemplateResponse("index.html", {"request": msg})
+                                return templates.TemplateResponse("index.html", {"request": msg})
 
 
                         else:
