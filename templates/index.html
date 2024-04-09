@@ -4,24 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThaiD | ยืนยันตัวตน</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            /*background-color: #f0f0f0;*/
+            justify-content: center;
+            /*align-items: center;*/
+            height: 100vh;
+        }
+
+        .container {
+            width: 83.33%; /* 10/12 in percentage */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 11.2px;
+            height: 11.2px;
+            animation: spinner-o824ag 1.2s infinite linear;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .spinner div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #93eaf2;
+            border-radius: 50%;
+            animation: spinner-vse6n7 1.5s infinite ease;
+        }
+
+        .spinner div:nth-child(1) {
+            --rotation: 90;
+        }
+
+        .spinner div:nth-child(2) {
+            --rotation: 180;
+        }
+
+        .spinner div:nth-child(3) {
+            --rotation: 270;
+        }
+
+        .spinner div:nth-child(4) {
+            --rotation: 360;
+        }
+
+        @keyframes spinner-vse6n7 {
+            0%, 100% {
+                transform: rotate(calc(var(--rotation) * 1deg)) translateY(0);
+            }
+
+            50% {
+                transform: rotate(calc(var(--rotation) * 1deg)) translateY(300%);
+            }
+        }
+
+        @keyframes spinner-o824ag {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <body>
-<h1></h1>
-<p>ปิดหน้านี้ทันที</p>
-<p>หรือรอ <span id="show-time"></span> วินาที</p>
+<div class="container">
+    <div class="text-center">
+        <h3 id="message">กรุณารอสักครู่ กำลังดำเนินการ...</h3>
+        <div class="spinner" id="spinner" style="margin-top: 5rem">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+
 <script>
-    <!--       javascript for auto close this windows for 10 sec and show count down in tag p id show-time -->
-    let time = 10;
-    let showTime = document.getElementById('show-time');
-    showTime.innerHTML = time;
+    let time = 5;
     let interval = setInterval(() => {
         time--;
-        showTime.innerHTML = time;
         if (time === 0) {
             clearInterval(interval);
             window.close();
         }
     }, 1000);
+
+    let time2 = 30;
+    let interval2 = setInterval(() => {
+            time2--;
+            if (time2 === 0) {
+                clearInterval(interval2);
+                document.getElementById('message').textContent = "อาจมีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง!";
+                let spinner = document.getElementById('spinner');
+                spinner.parentNode.removeChild(spinner);
+            }
+        }, 1000);
 
 </script>
 </body>
