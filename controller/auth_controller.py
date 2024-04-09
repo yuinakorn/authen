@@ -14,11 +14,16 @@ from starlette.middleware.cors import CORSMiddleware
 # from fastapi import HTTPException, FastAPI
 # from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse, Response
-
 from controller.check_permis_controller import check_permis, get_exp_url
 import jsonpickle
+# UI
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 import re
+
+# UI
+templates = Jinja2Templates(directory="templates")
 
 from user_agents import parse
 
@@ -393,14 +398,18 @@ def get_callback(code, state):
                             print("service_id: ", service_id)
                             print("type of service_id: ", type(service_id))
                             if service_id == "1":
-                                print("กำลังดำเนินการ")
-                                return "กำลังดำเนินการ"
+                                # print("ปิดหน้าต่างนี้หรือรอสักครู่...")
+                                return "ปิดหน้าต่างนี้หรือรอสักครู่..."
                             elif service_id == "2":
-                                print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
+                                # print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
                                 return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
                             else:
-                                print("กำลังดำเนินการ โปรดรอสักครู่...")
-                                return "กำลังดำเนินการ โปรดรอสักครู่..."
+                                # print("กำลังดำเนินการ โปรดรอสักครู่...")
+                                # return "กำลังดำเนินการ โปรดรอสักครู่..."
+                                msg = "กำลังดำเนินการ โปรดรอสักครู่..."
+                                # return with template
+                                return templates.TemplateResponse("index.html", {"request": msg})
+
 
                         else:
                             return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),

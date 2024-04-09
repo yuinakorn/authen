@@ -12,7 +12,8 @@ app = FastAPI()
 origins = [
     config_env["CORS_ORIGIN1"],
     config_env["CORS_ORIGIN2"],
-    config_env["CORS_ORIGIN3"]
+    config_env["CORS_ORIGIN3"],
+    config_env["CORS_ORIGIN4"]
 ]
 
 print(origins)
