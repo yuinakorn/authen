@@ -399,10 +399,10 @@ def get_callback(code, state, request):
                             print("type of service_id: ", type(service_id))
                             if service_id == "1":
                                 # print("ปิดหน้าต่างนี้หรือรอสักครู่...")
-                                return "ปิดหน้าต่างนี้หรือรอสักครู่..."
+                                return templates.TemplateResponse("index.html", {"request": request})
                             elif service_id == "2":
                                 # print("กำลังตรวจสอบสิทธิ กรุณารอสักครู่...")
-                                return "กำลังตรวจสอบสิทธิ กรุณารอสักครู่..."
+                                return templates.TemplateResponse("index.html", {"request": request})
                             else:
                                 # print("กำลังดำเนินการ โปรดรอสักครู่...")
 
