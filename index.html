@@ -6,7 +6,23 @@
     <title>ThaiD Authen</title>
 </head>
 <body>
-    <h1>{{ request.client.host }}</h1>
-    <p>หรือปิดหน้านี้ได้เลย</p>
+<h1>{{ request.client.host }}</h1>
+<p>หรือปิดหน้านี้ได้เลย</p>
+<p id="show-time"></p>
+<script>
+    <!--       javascript for auto close this windows for 10 sec and show count down in tag p id show-time -->
+    let time = 10;
+    let showTime = document.getElementById('show-time');
+    showTime.innerHTML = time;
+    let interval = setInterval(() => {
+        time--;
+        showTime.innerHTML = time;
+        if (time === 0) {
+            clearInterval(interval);
+            window.close();
+        }
+    }, 1000);
+
+</script>
 </body>
 </html>
