@@ -284,7 +284,7 @@ def get_generate_qrcode(request_token, state: str):
         return e
 
 
-def get_callback(code, state):
+def get_callback(code, state, request):
     try:
         print("\nstart get_callback")
         connection = pymysql.connect(host=config_env["DB_HOST"],
@@ -409,45 +409,7 @@ def get_callback(code, state):
                                 # msg = "กำลังดำเนินการ โปรดรอสักครู่..."
                                 # return msg
                                 # return with template
-                                return """
-                                         <html>
-                                            <head>
-                                                <title>My HTML Page</title>
-                                            </head>
-                                            <body>
-                                                <h1>Welcome to my HTML page!</h1>
-                                                <p>หน้านี้่จะปิดในอีก <span id="show-time"></span> วินาที</p>
-                                                <div>
-                                                    <button id="button-close-window">ปิดหน้าต่าง</button>
-                                                </div>
-                                                <script>
-                                                document.querySelector("#button-close-window").addEventListener("click", function() {
-                                                    closeWindow();
-                                                });
-                                                function closeWindow() {
-                                                    window.close();
-                                                }
-                                                
-                                                    let time = 10;
-                                                    let showTime = document.getElementById('show-time');
-                                                    showTime.innerHTML = time;
-                                                    let interval = setInterval(() => {
-                                                        time--;
-                                                        showTime.innerHTML = time;
-                                                        if (time === 0) {
-                                                            clearInterval(interval);
-                                                            window.close();
-                                                        }
-                                                    }, 1000);
-                                                    
-                                                    setTimeout(function() {
-                                                    window.close();
-                                                }, 11000);
-                                                
-                                                </script>
-                                            </body>
-                                        </html>
-                                        """
+                                return templates.TemplateResponse("index.html", {"request": request})
 
                         else:
                             return Response(content=jsonpickle.encode({"detail": f"Insert failed."}),

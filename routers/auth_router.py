@@ -31,8 +31,8 @@ async def generate_qrcode(request_token: AuthBase, state: str = None):
 
 
 @router.get("/callback/", response_class=HTMLResponse)
-async def callback(code: str = None, state: str = None):
-    return get_callback(code, state)
+async def callback(request: Request, code: str = None, state: str = None):
+    return get_callback(code, state, request)
 
 
 @router.post("/active/")
