@@ -54,10 +54,10 @@ async def get_token_for_viewer(request_viewer: ViewerBase):
 async def create_log(request_log: LogBase):
     return post_log(request_log)
 
-
-@router.post("/check_position_his/")
-async def check_position_his(prov_code: str, hcode: str, cid: str):
-    return auth_controller.check_position_his(prov_code, hcode, cid)
+#
+# @router.post("/check_position_his/")
+# async def check_position_his(prov_code: str, hcode: str, cid: str):
+#     return auth_controller.check_position_his(prov_code, hcode, cid)
 
 
 router2 = APIRouter(tags=["lookup table"])
