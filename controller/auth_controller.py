@@ -375,7 +375,7 @@ def get_callback(code, state, request):
                         print("active: ", active)
 
                         with connection.cursor() as cursor:
-                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date, level_postion) " \
+                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date, level_position) " \
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
                             cursor.execute(sql,
                                            (service_id, client_id, hcode, scope_return, state, level, active,
