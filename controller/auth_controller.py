@@ -362,7 +362,10 @@ def get_callback(code, state, request):
                     # ถ้า active ให้ไปเช็คตำแหน่งใน his ต่อ
                     if res_active.json()["active"] is True:
                         # Check permission return 0 or 1
-                        level = check_permis(prov_code, hcode, response.json()["pid"])
+                        # level = check_permis(prov_code, hcode, response.json()["pid"])
+                        res = check_permis(prov_code, hcode, response.json()["pid"])
+                        level = res[0]
+                        his_position = res[1]
 
                         scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
                                        response.json()["family_name"]
@@ -371,11 +374,13 @@ def get_callback(code, state, request):
                         print("active: ", active)
 
                         with connection.cursor() as cursor:
-                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                            sql = """
+                            INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date,level_position)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            """
                             cursor.execute(sql,
                                            (service_id, client_id, hcode, scope_return, state, level, active,
-                                            created_date))
+                                            created_date, his_position))
                             # how to print sql after execute
 
                             print("cursor.rowcount: ", cursor.rowcount)

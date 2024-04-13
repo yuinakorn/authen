@@ -51,7 +51,8 @@ def check_permis(prov_code, hcode, cid):
                                       any(pos in item["position"] for pos in position_allow)]
                 # ถ้ามีการ match กับ position ที่อนุญาตให้เข้าถึง จะ return 1 ถ้าไม่มีจะ return 0
                 level = 1 if len(matching_positions) > 0 else 0
-                return level
+                his_position = matching_positions[0]["position"] if len(matching_positions) > 0 else None
+                return level, his_position
 
     except Exception as e:
         print(e)
