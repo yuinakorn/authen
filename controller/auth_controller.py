@@ -350,7 +350,7 @@ def get_callback(code, state, request):
 
                     print("response.text: ", response.text)
 
-                    # API step 3 Check Active CID
+                    # API step 3 Check Active CID เช็คว่า 13 หลักนี้ยัง active อยู่หรือไม่ใน thaid
                     access_token = response.json()["access_token"]
 
                     payload2 = f"token=Bearer {access_token}"
@@ -359,9 +359,13 @@ def get_callback(code, state, request):
 
                     print("res_active.text: ", res_active.text)
 
+                    # ถ้า active ให้ไปเช็คตำแหน่งใน his ต่อ
                     if res_active.json()["active"] is True:
-                        # Check permission
-                        level = check_permis(prov_code, hcode, response.json()["pid"])
+                        # Check permission return 0 or 1
+                        response_permis = check_permis(prov_code, hcode, response.json()["pid"])
+
+                        level = response_permis["level"]
+                        position = response_permis["position"]
 
                         scope_return = response.json()["pid"] + "," + response.json()["given_name"] + "," + \
                                        response.json()[
@@ -371,11 +375,11 @@ def get_callback(code, state, request):
                         print("active: ", active)
 
                         with connection.cursor() as cursor:
-                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                            sql = "INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date, level_postion) " \
+                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
                             cursor.execute(sql,
                                            (service_id, client_id, hcode, scope_return, state, level, active,
-                                            created_date))
+                                            created_date, position))
                             # how to print sql after execute
 
                             print("cursor.rowcount: ", cursor.rowcount)

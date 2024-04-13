@@ -24,8 +24,10 @@ def check_permis(prov_code, hcode, cid):
             if result is None:
                 return 0
             else:
+                # url exp ของจังหวัดนั้น ๆ
                 url_exp = result["url_exp"]
                 url_his_cid = config_env["URL_HIS_CID"]
+                # url เต็ม โดยส่ง cid ไปเช็ค
                 url = f"{url_exp}{url_his_cid}{hcode}?cid={cid}"
 
                 response = requests.request("GET", url, headers={}, data={})
@@ -47,10 +49,11 @@ def check_permis(prov_code, hcode, cid):
                 matching_positions = [item for item in data if
                                       item["position"] and isinstance(item["position"], str) and
                                       any(pos in item["position"] for pos in position_allow)]
-                result = 1 if len(matching_positions) > 0 else 0
-                print("result in check_permis: ", result)
-
-                return result
+                # ถ้ามีการ match กับ position ที่อนุญาตให้เข้าถึง จะ return 1 ถ้าไม่มีจะ return 0
+                level = 1 if len(matching_positions) > 0 else 0
+                # print("result in check_permis: ", result)
+                print(data[0]["position"])
+                return {"level": level, "position": data[0]["position"]}
 
     except Exception as e:
         print(e)
