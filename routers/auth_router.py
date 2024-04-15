@@ -2,7 +2,8 @@ from dotenv import dotenv_values
 from fastapi import APIRouter, Request, FastAPI
 
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
-    get_province, get_hosname, get_script_provider, get_province_code, post_log, get_active_by_client_id, post_version
+    get_province, get_hosname, get_script_provider, get_province_code, post_log, get_active_by_client_id, post_version, \
+    check_position_allow
 from models.auth_model import AuthBase, ViewerBase, RegBase, LogBase
 import controller.auth_controller as auth_controller
 
@@ -10,7 +11,6 @@ from fastapi.responses import HTMLResponse
 
 router = APIRouter(tags=["authentication"])
 config_env = dotenv_values(".env")
-
 
 app = FastAPI()
 
@@ -54,10 +54,10 @@ async def get_token_for_viewer(request_viewer: ViewerBase):
 async def create_log(request_log: LogBase):
     return post_log(request_log)
 
-#
-# @router.post("/check_position_his/")
-# async def check_position_his(prov_code: str, hcode: str, cid: str):
-#     return auth_controller.check_position_his(prov_code, hcode, cid)
+
+@router.post("/check_posit_allow/")
+async def check_position_allow(request_token: AuthBase, position_check: str = None):
+    return auth_controller.check_position_allow(request_token, position_check)
 
 
 router2 = APIRouter(tags=["lookup table"])

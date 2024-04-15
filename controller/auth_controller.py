@@ -375,8 +375,8 @@ def get_callback(code, state, request):
 
                         with connection.cursor() as cursor:
                             sql = """
-                            INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date,level_position)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                INSERT INTO service_requested (service_id, client_id, hcode, scope, state, level, active, created_date,level_position)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             """
                             cursor.execute(sql,
                                            (service_id, client_id, hcode, scope_return, state, level, active,
@@ -638,6 +638,38 @@ def get_token_viewer(request_viewer):
                     print("insert log viewer success")
                 return {"access_token": access_token}
                 # return create_jwt_token(request_viewer)
+
+    except Exception as e:
+        print(e)
+        return e
+
+
+def check_position_allow(request_token, position_check):
+    token = request_token.account_token
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM service_api WHERE account_token = %s"
+            cursor.execute(sql, token)
+            result = cursor.fetchone()
+            service_id = result["service_id"]
+
+            sql = """SELECT * FROM position_allow_service WHERE service_id = %s"""
+            cursor.execute(sql, service_id)
+            result = cursor.fetchone()
+            service_position_allow = result["position_allow"]
+            # make service_position_allow to list
+            service_position_allow = service_position_allow.split(",")
+
+            # make short code
+            return {"result": 200} if position_check in service_position_allow else {"result": 0}
 
     except Exception as e:
         print(e)
