@@ -295,24 +295,28 @@ def get_callback(code, state, request):
                                      port=int(config_env["DB_PORT"]),
                                      cursorclass=pymysql.cursors.DictCursor
                                      )
-
+        print("code: ", code)
+        print("state: ", state)
         if code.strip() and state.strip():
             service_id = state.split("|")[0]
             client_id = state.split("|")[1]
             prov_code = state.split("|")[2]
             hcode = state.split("|")[3]
-
+            print("prov_code: ", prov_code)
             # Set the time zone to Thailand
             thailand_tz = pytz.timezone('Asia/Bangkok')
             utc_now = datetime.now(pytz.utc)
             created_date = utc_now.astimezone(thailand_tz)
 
             # grant_type = config_env["GRANT_TYPE"]
-
+            print("befere")
             with connection.cursor() as cursor:
-                sql = "SELECT * FROM service_api " \
-                      "INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id " \
-                      "WHERE service_id = %s"
+                print("in connection cursor")
+                sql = """
+                        SELECT * FROM service_api 
+                          INNER JOIN thaid_client ON service_api.thaid_id = thaid_client.id 
+                          WHERE service_id = %s
+                      """
                 cursor.execute(sql, service_id)
                 result = cursor.fetchone()
                 if result is None:
@@ -602,7 +606,7 @@ def create_jwt_token(request_viewer, expires_delta: timedelta):
     return encoded_jwt
 
 
-def get_token_viewer(request_viewer):
+def get_token_viewer(request_viewer, expires_delta):
     token = request_viewer.account_token
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
@@ -622,7 +626,8 @@ def get_token_viewer(request_viewer):
                                 status_code=401,
                                 media_type="application/json")
             else:
-                access_token_expires = timedelta(minutes=30)  # Token expiration time
+
+                access_token_expires = timedelta(minutes=expires_delta)  # Token expiration time
                 access_token = create_jwt_token(request_viewer, expires_delta=access_token_expires)
                 # create datetime now yyyy-mm-dd hh:mm:ss
                 cur = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

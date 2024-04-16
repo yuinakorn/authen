@@ -46,8 +46,8 @@ async def check_active_by_client_id(request_token: AuthBase, client_id: str = No
 
 
 @router.post("/viewer/")
-async def get_token_for_viewer(request_viewer: ViewerBase):
-    return get_token_viewer(request_viewer)
+async def get_token_for_viewer(request_viewer: ViewerBase, exp: int = 30):
+    return get_token_viewer(request_viewer, exp)
 
 
 @router.post("/viewer_log/")
