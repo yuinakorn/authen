@@ -762,7 +762,7 @@ def get_hosname(hoscode):
         with connection.cursor() as cursor:
             sql = (
                 "SELECT hoscode, REPLACE(hosname,'โรงพยาบาลส่งเสริมสุขภาพตำบล','รพ.สต.') hosname FROM chospital WHERE hoscode = %s "
-                " AND provcode in ('50','51','58') LIMIT 1")
+                " AND provcode in ('50','51','52','54','57','58','55','56','85','94') LIMIT 1")
             cursor.execute(sql, hoscode)
             result = cursor.fetchone()
 
