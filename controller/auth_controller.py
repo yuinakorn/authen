@@ -240,13 +240,13 @@ def get_public_ip():
 
 def get_client(request):
     client_ip = request.client.host
-    # public_ip = get_public_ip()
+    public_ip = get_public_ip()
     user_agent_string = request.headers.get('user-agent')
     user_agent = parse(user_agent_string)
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
     operating_system = user_agent.os.family if user_agent.os else "Unknown"
-
-    return {"client_ip": client_ip, "browser": browser, "os": operating_system, "user_agent": user_agent}
+    ip_address = public_ip + " / " + client_ip
+    return {"client_ip": ip_address, "browser": browser, "os": operating_system, "user_agent": user_agent}
 
 
 def get_generate_qrcode(request_token, state: str):
