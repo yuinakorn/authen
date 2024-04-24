@@ -395,12 +395,13 @@ def get_callback(code, state, request):
                             # 1. insert to temporary table
                             connection.commit()
                             with connection.cursor() as cursor2:
-                                sql = "INSERT INTO log_service_requested (service_id, client_id, hcode, scope, state, level, active, created_date) " \
-                                      "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                                sql = f"""INSERT INTO log_service_requested 
+                                        (service_id, client_id, hcode, scope, state, level, active, created_date, level_position) 
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                                 cursor2.execute(sql,
                                                 (
                                                     service_id, client_id, hcode, scope_return, state, level, active,
-                                                    created_date))
+                                                    created_date, his_position))
                                 # 2. insert to log
                                 connection.commit()
 
