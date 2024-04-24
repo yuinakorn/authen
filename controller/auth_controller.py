@@ -245,7 +245,7 @@ def get_client(request):
     user_agent = parse(user_agent_string)
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
     operating_system = user_agent.os.family if user_agent.os else "Unknown"
-    ip_address = public_ip + " / " + client_ip
+    ip_address = public_ip + " " + client_ip
     return {"client_ip": ip_address, "browser": browser, "os": operating_system, "user_agent": user_agent}
 
 
