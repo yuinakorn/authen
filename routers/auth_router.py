@@ -94,8 +94,8 @@ async def read_province_code():
 
 
 @router2.post("/version/")
-async def read_version(request_token: AuthBase):
-    return post_version(request_token)
+async def read_version(request_token: AuthBase, request: Request):
+    return post_version(request_token, request)
 
 
 router3 = APIRouter(tags=["policy"])
