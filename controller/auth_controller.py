@@ -886,13 +886,14 @@ def get_province_code():
 
 
 def post_version(request_token, request):
-    client_ip = request.client.host
+    client_ip = "Not open in browser"
     public_ip = request.headers.get('x-forwarded-for')
-    ip_address = public_ip + " " + client_ip if public_ip else client_ip
+    ip_address = public_ip if public_ip else client_ip
 
     print({
         "client_ip": ip_address,
     })
+
     token = request_token.account_token
     is_token = check_account_token(token)
     if is_token["result"] == 0:
