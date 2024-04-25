@@ -807,7 +807,20 @@ def get_hosname_all_old():
         return e
 
 
-def get_hosname_all():
+def get_hosname_all(request):
+    client_ip = request.client.host
+    public_ip = request.headers.get('x-forwarded-for')
+    ip_address = public_ip + " " + client_ip if public_ip else client_ip
+    user_agent_string = request.headers.get('user-agent')
+    user_agent = parse(user_agent_string)
+    browser = user_agent.browser.family if user_agent.browser else "Unknown"
+    operating_system = user_agent.os.family if user_agent.os else "Unknown"
+    print({
+        "client_ip": ip_address,
+        "browser": browser,
+        "os": operating_system,
+        "user_agent": user_agent
+    })
     #     get all hospital from ../hos_all.json
     with open('hos_all.json', 'r') as file:
         # Load the JSON data from the file

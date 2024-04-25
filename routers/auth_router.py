@@ -79,8 +79,8 @@ async def read_hosname_by_hoscode(hoscode: str):
 
 
 @router2.get("/hoscode_all/")
-async def read_hosname_all():
-    return auth_controller.get_hosname_all()
+async def read_hosname_all(request: Request):
+    return auth_controller.get_hosname_all(request)
 
 
 @router2.post("/script_provider/")
