@@ -885,7 +885,12 @@ def get_province_code():
         return e
 
 
-def post_version(request_token, request):
+def post_version():
+    raise JSONResponse(content={"version": "1.0.0.0"}, status_code=400)
+    # return {"version": "1.0.0.0"}
+
+
+def post_version2(request_token, request):
     client_ip = "Not open in browser"
     public_ip = request.headers.get('x-forwarded-for')
     ip_address = public_ip if public_ip else client_ip
