@@ -780,7 +780,7 @@ def get_hosname(hoscode):
         return e
 
 
-def get_hosname_all():
+def get_hosname_all_old():
     connection = pymysql.connect(host=config_env["DB_HOST"],
                                  user=config_env["DB_USER"],
                                  password=config_env["DB_PASSWORD"],
@@ -805,6 +805,14 @@ def get_hosname_all():
     except Exception as e:
         print(e)
         return e
+
+
+def get_hosname_all():
+    #     get all hospital from hospital_all.json
+    with open('hospital_all.json', 'r') as file:
+        # Load the JSON data from the file
+        hospital_list = json.load(file)
+    return hospital_list
 
 
 def get_script_provider(request_token):

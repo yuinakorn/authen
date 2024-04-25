@@ -78,7 +78,7 @@ async def read_hosname_by_hoscode(hoscode: str):
 #     return (auth_controller.get_hosname_all()
 
 
-@router2.post("/hoscode_all/")
+@router2.get("/hoscode_all/")
 async def read_hosname_all():
     return auth_controller.get_hosname_all()
 
