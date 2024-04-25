@@ -808,15 +808,15 @@ def get_hosname_all_old():
 
 
 def get_hosname_all(request):
-    client_ip = "Not open in browser"
     public_ip = request.headers.get('x-forwarded-for')
-    ip_address = public_ip if public_ip else client_ip
+    real_ip = request.headers.get('x-real-ip')
     user_agent_string = request.headers.get('user-agent')
     user_agent = parse(user_agent_string)
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
     operating_system = user_agent.os.family if user_agent.os else "Unknown"
     print({
-        "client_ip": ip_address,
+        "publick_id": public_ip,
+        "real_ip": real_ip,
         "browser": browser,
         "os": operating_system,
         "user_agent": user_agent
