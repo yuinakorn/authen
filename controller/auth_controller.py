@@ -889,7 +889,7 @@ def post_version(request_token, request):
     if request.headers:
         headers = request.headers
         print({
-            "request_token": str(request_token)[:10],
+            "request_token": str(request_token.account_token)[:10],
             "x-forwarded-for": headers.get('x-forwarded-for'),
             "x-real-ip": headers.get('x-real-ip')
         })
