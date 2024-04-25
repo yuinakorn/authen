@@ -808,9 +808,9 @@ def get_hosname_all_old():
 
 
 def get_hosname_all(request):
-    client_ip = request.client.host
+    client_ip = "Not open in browser"
     public_ip = request.headers.get('x-forwarded-for')
-    ip_address = public_ip + " " + client_ip if public_ip else client_ip
+    ip_address = public_ip if public_ip else client_ip
     user_agent_string = request.headers.get('user-agent')
     user_agent = parse(user_agent_string)
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
