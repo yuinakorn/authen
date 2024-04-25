@@ -808,11 +808,11 @@ def get_hosname_all_old():
 
 
 def get_hosname_all():
-    #     get all hospital from hospital_all.json
-    with open('hospital_all.json', 'r') as file:
+    #     get all hospital from ../hos_all.json
+    with open('hos_all.json', 'r') as file:
         # Load the JSON data from the file
-        hospital_list = json.load(file)
-    return hospital_list
+        hos_code_list = json.load(file)
+    return hos_code_list
 
 
 def get_script_provider(request_token):
