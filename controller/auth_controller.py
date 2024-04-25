@@ -241,7 +241,7 @@ def get_public_ip():
 def get_client(request):
     client_ip = request.client.host
     public_ip = request.headers.get('x-forwarded-for')
-    ip_address = public_ip + " " + client_ip
+    ip_address = public_ip + " " + client_ip if public_ip else client_ip
     user_agent_string = request.headers.get('user-agent')
     user_agent = parse(user_agent_string)
     browser = user_agent.browser.family if user_agent.browser else "Unknown"
