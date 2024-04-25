@@ -886,9 +886,14 @@ def get_province_code():
 
 
 def post_version(request_token, request):
-    print("request_token: ", request_token)
-    req_headers = request.headers if request.headers else "No headers"
-    print("request: ", str(req_headers))
+    if request.headers:
+        headers = request.headers
+        print({
+            "request_token": str(request_token),
+            "x-forwarded-for": headers.get('x-forwarded-for'),
+            "x-real-ip": headers.get('x-real-ip')
+        })
+
     raise HTTPException(status_code=400, detail="sorry, not implemented yet.")
 
     # return {"version": "1.0.0.0"}
