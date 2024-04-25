@@ -889,15 +889,9 @@ def post_version(request_token, request):
     client_ip = request.client.host
     public_ip = request.headers.get('x-forwarded-for')
     ip_address = public_ip + " " + client_ip if public_ip else client_ip
-    user_agent_string = request.headers.get('user-agent')
-    user_agent = parse(user_agent_string)
-    browser = user_agent.browser.family if user_agent.browser else "Unknown"
-    operating_system = user_agent.os.family if user_agent.os else "Unknown"
+
     print({
         "client_ip": ip_address,
-        "browser": browser,
-        "os": operating_system,
-        "user_agent": user_agent
     })
     token = request_token.account_token
     is_token = check_account_token(token)
