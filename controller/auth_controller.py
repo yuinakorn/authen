@@ -9,7 +9,7 @@ import pymysql.cursors
 import pytz
 import requests
 from dotenv import dotenv_values
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 # from fastapi import HTTPException, FastAPI
 # from starlette.middleware.cors import CORSMiddleware
@@ -885,8 +885,12 @@ def get_province_code():
         return e
 
 
-def post_version():
-    raise JSONResponse(content={"version": "1.0.0.0"}, status_code=400)
+def post_version(request_token, request):
+    print("request_token: ", request_token)
+    req_headers = request.headers if request.headers else "No headers"
+    print("request: ", str(req_headers))
+    raise HTTPException(status_code=400, detail="sorry, not implemented yet.")
+
     # return {"version": "1.0.0.0"}
 
 
