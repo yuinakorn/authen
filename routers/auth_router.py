@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, FastAPI
 from controller.auth_controller import get_generate_qrcode, get_callback, get_active_by_state, get_token_viewer, \
     get_province, get_hosname, get_script_provider, get_province_code, post_log, get_active_by_client_id, post_version, \
     check_position_allow
-from models.auth_model import AuthBase, ViewerBase, RegBase, LogBase
+from models.auth_model import AuthBase, ViewerBase, RegBase, LogBase, HistoryBase
 import controller.auth_controller as auth_controller
 
 from fastapi.responses import HTMLResponse
@@ -58,6 +58,11 @@ async def create_log(request_log: LogBase):
 @router.post("/check_posit_allow/")
 async def check_position_allow(request_token: AuthBase, position_check: str = None):
     return auth_controller.check_position_allow(request_token, position_check)
+
+
+@router.post("/history/")
+async def read_history(request_token: HistoryBase):
+    return auth_controller.get_history(request_token)
 
 
 router2 = APIRouter(tags=["lookup table"])

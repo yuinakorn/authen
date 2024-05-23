@@ -44,11 +44,13 @@ def check_permis(prov_code, hcode, cid):
                 #                       item["position"] and isinstance(item["position"], str) and item[
                 #                           "position"].startswith(
                 #                           tuple(position_allow))]
+
                 # result = 1 if len(matching_positions) > 0 else 0
 
                 matching_positions = [item for item in data if
                                       item["position"] and isinstance(item["position"], str) and
                                       any(pos in item["position"] for pos in position_allow)]
+
                 # ถ้ามีการ match กับ position ที่อนุญาตให้เข้าถึง จะ return 1 ถ้าไม่มีจะ return 0
                 level = 1 if len(matching_positions) > 0 else 0
                 his_position = matching_positions[0]["position"] if len(matching_positions) > 0 else None

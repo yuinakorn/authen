@@ -5,6 +5,12 @@ class AuthBase(BaseModel):
     account_token: str
 
 
+class HistoryBase(BaseModel):
+    account_token: str
+    hoscode: str
+    cid: str
+
+
 class RegBase(BaseModel):
     account_token: str
     username: str

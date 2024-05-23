@@ -675,8 +675,9 @@ def check_position_allow(request_token, position_check):
             # make service_position_allow to list
             service_position_allow = service_position_allow.split(",")
 
-            # make short code
-            return {"result": 200} if position_check in service_position_allow else {"result": 0}
+            # return {"result": 200} if position_check in service_position_allow else {"result": 0}
+            return {"result": 200} if any(position.startswith(position_check)
+                                          for position in service_position_allow) else {"result": 0}
 
     except Exception as e:
         print(e)
@@ -821,6 +822,7 @@ def get_hosname_all(request):
         "os": operating_system,
         "user_agent": user_agent
     })
+
     #     get all hospital from ../hos_all.json
     with open('hos_all.json', 'r') as file:
         # Load the JSON data from the file
@@ -938,3 +940,51 @@ def post_version2(request_token, request):
         except Exception as e:
             print(e)
             return e
+
+
+def get_history(request_token):
+    token = request_token.account_token
+    connection = pymysql.connect(host=config_env["DB_HOST"],
+                                 user=config_env["DB_USER"],
+                                 password=config_env["DB_PASSWORD"],
+                                 db=config_env["DB_NAME"],
+                                 charset=config_env["DB_CHARSET"],
+                                 port=int(config_env["DB_PORT"]),
+                                 cursorclass=pymysql.cursors.DictCursor
+                                 )
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT service_id FROM service_api WHERE account_token = %s LIMIT 1"
+            cursor.execute(sql, token)
+            result = cursor.fetchone()
+            if result is None:
+                return Response(content=jsonpickle.encode({"detail": f"Unauthorized, Service id is invalid."}),
+                                status_code=401,
+                                media_type="application/json")
+            else:
+                service_id = result["service_id"]
+                with connection.cursor() as cursor:
+                    sql = f"""
+                    SELECT client_id, hcode, scope, level_position, log.created_date
+                    FROM log_service_requested log
+                    INNER JOIN service_api s ON log.service_id = s.service_id
+                    WHERE s.service_id = %s
+                    AND LEFT(log.scope, 13) = %s
+                    AND log.hcode = %s
+                    ORDER BY created_date DESC
+					LIMIT 300
+                    """
+                    # print(cursor.mogrify(sql, (service_id, request_token.cid, request_token.hoscode)))
+                    cursor.execute(sql, (service_id, request_token.cid, request_token.hoscode))
+                    result = cursor.fetchall()
+                    if not result:
+                        return Response(
+                            content=jsonpickle.encode({"detail": "Not found."}),
+                            status_code=404,
+                            media_type="application/json"
+                        )
+                    else:
+                        return result
+    except Exception as e:
+        print(e)
+        return e

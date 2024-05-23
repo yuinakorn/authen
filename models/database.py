@@ -11,4 +11,3 @@ connection = pymysql.connect(host=config_env["DB_HOST"],
                              port=int(config_env["DB_PORT"]),
                              cursorclass=pymysql.cursors.DictCursor
                              )
-
