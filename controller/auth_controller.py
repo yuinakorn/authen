@@ -676,8 +676,14 @@ def check_position_allow(request_token, position_check):
             service_position_allow = service_position_allow.split(",")
 
             # return {"result": 200} if position_check in service_position_allow else {"result": 0}
-            return {"result": 200} if any(position.startswith(position_check)
-                                          for position in service_position_allow) else {"result": 0}
+            # return {"result": 200} if any(position.startswith(position_check)
+            #                               for position in service_position_allow) else {"result": 0}
+
+            # Check if any position in the allowed positions list starts with the position to check
+            is_allowed = any(position_check.startswith(position) for position in service_position_allow)
+
+            # Return the result
+            return {"result": 200} if is_allowed else {"result": 0}
 
     except Exception as e:
         print(e)
